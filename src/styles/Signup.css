@@ -1,0 +1,78 @@
+/* General Container */
+.signup-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #e7d4b5; /* Beige background */
+    font-family: 'Arial', sans-serif;
+  }
+  
+  /* Logo Section */
+  .logo img {
+    width: 120px; /* Adjust as needed */
+    margin-bottom: 20px;
+  }
+  
+  /* Signup Form Section */
+  .signup-form {
+    background-color: #fef6e4; /* Lighter beige background */
+    padding: 30px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 300px;
+  }
+  
+  .signup-form h2 {
+    font-size: 1.8rem;
+    color: #734a48; /* Brown color for title */
+    margin-bottom: 20px;
+    font-weight: bold;
+  }
+  
+  /* Input Fields */
+  .input-field {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    background-color: #fff;
+  }
+  
+  /* Signup Button */
+  .signup-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #734a48; /* Dark brown color */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .signup-button:hover {
+    background-color: #5b3837; /* Darker shade on hover */
+  }
+  
+  /* Login Prompt */
+  .login-prompt {
+    margin-top: 20px;
+    font-size: 0.9rem;
+  }
+  
+  .login-prompt a {
+    color: #734a48;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .login-prompt a:hover {
+    text-decoration: underline;
+  }
+  

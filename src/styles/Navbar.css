@@ -1,0 +1,110 @@
+/* Navbar Container */
+.navbar {
+  display: flex;
+  justify-content: space-between; /* Space between logo and nav-links */
+  align-items: center; /* Vertically center items */
+  padding: 10px 20px;
+  background-color: #e7d4b5; /* Beige background */
+  border-bottom: 3px solid #814735; /* Bottom border */
+  font-family: 'Arial', sans-serif;
+  position: fixed; /* Keeps the navbar at the top */
+  width: 100%;
+  top: 0;
+  z-index: 1000; /* Ensures it stays above other content */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Logo Section */
+.logo {
+  display: flex;
+  align-items: center; /* Center logo vertically */
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #8b6f47; /* Dark brown for text */
+}
+
+.logo-image {
+  width: 150px; /* Maintain aspect ratio */
+  margin-right: 10px; /* Add spacing from logo text */
+}
+
+.logo-text {
+  font-family: 'Comic Sans MS', cursive, sans-serif; /* Cartoon-like text */
+}
+
+/* Navigation Links Section */
+.nav-links {
+  display: flex;
+  align-items: center; /* Center links vertically */
+  gap: 20px; /* Even spacing between links */
+  margin-right: 20px;
+}
+
+.nav-links a {
+  font-size: 20px; /* Adjust font size for readability */
+  color: #783431; /* Darker brown for links */
+  font-weight: 550; /* Medium font weight */
+  text-decoration: none; /* Remove underline */
+  padding: 5px 15px; /* Add some padding for better spacing */
+  transition: color 0.3s ease; /* Smooth transition for hover effect */
+  font-family: 'Brush Script MT', cursive;
+}
+
+.nav-links a:hover {
+  color: #b08968; /* Slightly lighter brown for hover effect */
+  text-decoration: underline; /* Optional: underline on hover */
+}
+
+/* Icon Buttons (for Logged-In View) */
+.icon-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #783431;
+  margin-left: 10px; /* Add spacing between icons */
+  transition: color 0.3s ease;
+}
+
+.icon-button:hover {
+  color: #b08968; /* Hover color for icons */
+}
+
+.user-name {
+  font-size: 18px;
+  color: #783431;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.logout-button {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.logout-button:hover {
+  background: #c82333;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column; /* Stack logo and nav-links vertically */
+    align-items: flex-start; /* Align items to the left */
+    padding: 15px;
+  }
+
+  .nav-links {
+    margin-top: 10px;
+    gap: 10px; /* Reduce spacing between links on small screens */
+  }
+
+  .logo-image {
+    height: 40px; /* Adjust logo size for smaller screens */
+  }
+}

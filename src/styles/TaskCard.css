@@ -1,0 +1,33 @@
+.task-card {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin: 10px;
+    border-radius: 8px;
+    background-color: #fefefe;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .task-card h4 {
+    margin: 0 0 10px;
+    font-size: 1.25rem;
+  }
+  
+  .task-card p {
+    margin: 0 0 15px;
+    font-size: 1rem;
+    color: #666;
+  }
+  
+  .mark-complete {
+    padding: 8px 15px;
+    background-color: #cc9966;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .mark-complete:hover {
+    background-color: #b07a52;
+  }
+  

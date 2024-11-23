@@ -1,0 +1,143 @@
+.home-container {
+    font-family: 'Arial', sans-serif;
+    color: #3b2b24; /* Text color for dark brown */
+    margin-top: 180px; /* Adds space below the navbar */
+  }
+  
+  /* Hero Section */
+  .hero {
+    display: flex;
+    justify-content: space-between; /* Adjust position of task cards and hero text */
+    align-items: center;
+    background-color: #734a48; /* Brown background */
+    color: #fff; /* Light text for contrast */
+    padding: 50px 12px;
+    gap: 30px; /* Space between task-cards and hero-text */
+  }
+  
+  /* Task Cards Container */
+  .task-cards {
+    position: relative; /* Enable stacking of cards */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 300px;
+    margin-bottom: 400px;
+  }
+  
+  /* Individual Task Card */
+  .task-card {
+    position: absolute; /* Allows stacking and rotation */
+    width: 280px;
+    height: 350px;
+    background-color: #f5e4c3; /* Beige card color */
+    border: 1px solid #8b6f47;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transform-origin: center; /* Set the origin for rotation */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth animations */
+  }
+  
+  /* Specific Positions and Rotations */
+  .card1 {
+    top: 20px;
+    left: -20px;
+    transform: rotate(-8deg); /* Slight left rotation */
+  }
+  
+  .card2 {
+    top: 0;
+    left: 20px;
+    transform: rotate(2deg); /* Slight right rotation */
+    z-index: 2; /* Bring to the front */
+  }
+  
+  .card3 {
+    top: 40px;
+    left: 60px;
+    transform: rotate(-4deg); /* Slight left rotation */
+  }
+  
+  /* Hover Effect for Cards */
+  .task-card:hover {
+    transform: scale(1.05) rotate(0deg); /* Zoom in and straighten on hover */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+  }
+  
+  /* Card Header */
+  .card-header {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #6a2e2b;
+    margin-bottom: 10px;
+  }
+  
+  /* Card Body */
+  .card-body {
+    text-align: center;
+  }
+  
+  .task-title {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #6a2e2b;
+  }
+  
+  .task-desc {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    color: #6a2e2b;
+  }
+  
+  /* Mark Complete Button */
+  .mark-complete {
+    background-color: #8b6f47;
+    color: #fff;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Smooth hover transition */
+  }
+  
+  .mark-complete:hover {
+    background-color: #705438;
+  }
+  
+  /* Hero Text Section */
+  .hero-text {
+    max-width: 400px;
+    text-align: left;
+    margin-right: 200px;
+  }
+  
+  .hero-text h1 {
+    font-size: 50px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    color: #f6e6cb;
+    font-family: 'Brush Script MT', cursive;
+  }
+  
+  .get-started {
+    background-color: #F6E6CB;
+    color: #734A48;
+    padding: 12px 50px;
+    font-size: 20px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-family: 'Brush Script MT', cursive;
+    font-weight: 800;
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+    margin-left: 70px;
+  }
+  
+  .get-started:hover {
+    background-color: #e1d1af;
+  }
+  
