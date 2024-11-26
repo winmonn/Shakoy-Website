@@ -120,7 +120,7 @@
     line-height: 1.5;
     margin-bottom: 20px;
     color: #f6e6cb;
-    font-family: 'Brush Script MT', cursive;
+    font-family: 'Itim', sans-serif;
   }
   
   .get-started {
@@ -131,7 +131,7 @@
     border: none;
     border-radius: 50px;
     cursor: pointer;
-    font-family: 'Brush Script MT', cursive;
+    font-family: 'Itim', sans-serif;
     font-weight: 800;
     transition: background-color 0.3s ease; /* Smooth hover effect */
     margin-left: 70px;

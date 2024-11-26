@@ -47,12 +47,13 @@
   text-decoration: none; /* Remove underline */
   padding: 5px 15px; /* Add some padding for better spacing */
   transition: color 0.3s ease; /* Smooth transition for hover effect */
-  font-family: 'Brush Script MT', cursive;
+  font-family: 'Itim', sans-serif;
 }
 
 .nav-links a:hover {
   color: #b08968; /* Slightly lighter brown for hover effect */
-  text-decoration: underline; /* Optional: underline on hover */
+  background-color: #e7d4b5;
+  text-decoration: none; /* Optional: underline on hover */
 }
 
 /* Icon Buttons (for Logged-In View) */
@@ -77,18 +78,80 @@
   margin-right: 10px;
 }
 
-.logout-button {
-  background: #dc3545;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
+/* Profile Dropdown Section */
+.profile-dropdown {
+  position: relative;
+  display: inline-block;
+  margin-right: 2em; /* Add space from the right edge */
 }
 
-.logout-button:hover {
-  background: #c82333;
+/* Profile Image */
+.profile-image {
+  width: 40px; /* Adjust size of the profile image */
+  height: 40px; /* Ensure it's square */
+  border-radius: 50%; /* Make it circular */
+  cursor: pointer; /* Indicate it's clickable */
+  /* border: 2px solid #783431; Optional: Add a border for styling */
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.profile-image:hover {
+  border-color: #b08968; /* Change border color on hover */
+  transform: scale(1.1); /* Slight zoom effect */
+}
+
+
+/* Dropdown Menu */
+.dropdown-menu {
+  position: absolute;
+  top: 100%; /* Position below the profile button */
+  right: 0; /* Align to the right */
+  background-color: #e7d4b5;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: 150px; /* Fixed width for consistent styling */
+  border: 1px solid black;
+}
+
+/* Dropdown Items */
+.dropdown-item {
+  display: block;
+  padding: 5px 15px; /* Match padding with nav-links a */
+  text-decoration: none; /* Remove underline */
+  color: #783431; /* Match color with nav-links a */
+  font-size: 20px; /* Match font size with nav-links a */
+  font-weight: 550; /* Match font weight with nav-links a */
+  font-family: 'Itim', sans-serif; /* Match font family */
+  background-color: transparent; /* Ensure transparent background like nav-links a */
+  cursor: pointer; /* Pointer cursor for clickable items */
+  transition: color 0.3s ease; /* Smooth transition for hover effect */
+  border-bottom: 1px solid black;
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.dropdown-item:hover {
+  background-color: #df2727; /* Match hover effect with nav-links a */
+  color: white;
+  text-decoration: none; /* Optional: add underline on hover */
+}
+
+/* Profile button */
+.profile-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #783431;
+  font-size: 1.5rem;
+  margin-left: 10px;
+}
+
+.profile-button:hover {
+  color: #b08968; /* Hover color for profile button */
 }
 
 /* Responsive Adjustments */
@@ -101,6 +164,7 @@
 
   .nav-links {
     margin-top: 10px;
+    padding-right: 2em;
     gap: 10px; /* Reduce spacing between links on small screens */
   }
 
