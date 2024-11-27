@@ -32,3 +32,10 @@ body {
   padding: 10px;
   background: #cc9966;
 }
+
+/* Remove underline for all links globally */
+a {
+  text-decoration: none; /* Remove underline */
+  color: inherit; /* Inherit color from parent (optional) */
+}
+

@@ -1,0 +1,147 @@
+/* Container */
+.login-security-container {
+    display: flex;
+    height: 100vh;
+    background-color: #f5e6d3;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  /* Sidebar */
+  .settings-sidebar {
+    width: 20%;
+    background-color: #f7e1c5;
+    padding: 20px;
+    border-right: 1px solid #814735;
+    text-align: center;
+  }
+  
+  .sidebar-logo {
+    width: 14em;
+    height: auto;
+    margin-bottom: 30px;
+  }
+  
+  .sidebar-links {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .sidebar-links li {
+    font-size: 18px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    color: #783431;
+    font-weight: bold;
+  }
+  
+  .sidebar-links li.active {
+    font-weight: bold;
+    font-size: 24px;
+  }
+  
+  .sidebar-links li:hover {
+    text-decoration: underline;
+  }
+  
+  /* Main Content */
+  .login-security-main {
+    width: 80%;
+    padding: 40px;
+    color: #783431;
+  }
+  
+  .section h2 {
+    font-size: 24px;
+    background-color: #783431;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    display: inline-block;
+    margin-bottom: 20px;
+  }
+  
+  .settings-field {
+    margin-bottom: 20px;
+  }
+  
+  .settings-field label {
+    font-size: 16px;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+  .field-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .field-content input {
+    background-color: #f7e1c5;
+    border: 1px solid #d1b797;
+    padding: 10px;
+    font-size: 16px;
+    color: #783431;
+    width: 300px;
+    border-radius: 4px;
+  }
+  
+  .field-content button {
+    background-color: transparent;
+    color: #783431;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .field-content button:hover {
+    text-decoration: underline;
+  }
+  
+  /* Sign Out Button */
+  .sign-out-button {
+    background-color: #e7d4b5;
+    color: #783431;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .sign-out-button:hover {
+    background-color: #d1b797;
+  }
+  
+  /* Delete Account Button */
+  .delete-account-button {
+    background-color: #783431;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .delete-account-button:hover {
+    background-color: #5e2922;
+  }
+
+  .back-arrow {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    font-size: 24px;
+    color: #783431;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .back-arrow:hover {
+    font-size: 30px;
+    color: #5e2922; /* Darker color on hover */
+  }
+  
+  
