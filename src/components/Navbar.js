@@ -35,14 +35,17 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       {/* Logo on the left */}
-      <div className="logo">
+      <div
+        className="logo"
+        onClick={() => navigate('/dashboard')} // Redirect to the dashboard page
+        style={{ cursor: 'pointer' }} // Optional: Change the cursor to indicate it's clickable
+      >
         <img
           src={require('../images/ShakoyLogo.png')}
           alt="Shakoy Logo"
           className="logo-image"
         />
       </div>
-
       {/* Links or actions on the right */}
       <div className="nav-links">
         {isAuthenticated ? (

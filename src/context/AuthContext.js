@@ -1,4 +1,3 @@
-// src/context/AuthContext.js
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
 // Create AuthContext
@@ -11,19 +10,24 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // Add a loading state
 
   // Load user data from localStorage on initialization
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
-    if (storedUser) {
+    const storedAuth = localStorage.getItem('isAuthenticated');
+
+    if (storedAuth === 'true' && storedUser) {
       setUser(JSON.parse(storedUser));
       setIsAuthenticated(true);
     }
+    setLoading(false); // Set loading to false after initialization
   }, []);
 
-  // Login function (using username and password)
+  // Login function
   const login = ({ username, password }) => {
-    if (user && user.username === username && user.password === password) {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    if (storedUser && storedUser.username === username && storedUser.password === password) {
       setIsAuthenticated(true);
       return true;
     }
@@ -34,18 +38,20 @@ export const AuthProvider = ({ children }) => {
   const signup = (userData) => {
     setUser(userData);
     setIsAuthenticated(true);
-    localStorage.setItem('user', JSON.stringify(userData)); // Persist user data
+    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('isAuthenticated', 'true');
   };
 
   // Logout function
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
-    localStorage.removeItem('user'); // Remove user data
+    localStorage.removeItem('user');
+    localStorage.removeItem('isAuthenticated');
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, signup, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, signup, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

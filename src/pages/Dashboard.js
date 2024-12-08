@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import "../styles/Dashboard.css";
-import { FaEdit, FaTrash, FaUserCircle } from "react-icons/fa";
+import { FaEdit, FaTrash, FaUserCircle, FaEye } from "react-icons/fa"; // Added FaEye for "View Project" button
 
 const months = [
   "January", "February", "March", "April", "May", "June",
@@ -95,6 +95,16 @@ const Dashboard = () => {
     });
   };
 
+  const handleAddCollaborator = () => {
+    const collaboratorName = prompt("Enter collaborator's name:");
+    if (collaboratorName) {
+      setNewProject((prev) => ({
+        ...prev,
+        collaborators: [...prev.collaborators, collaboratorName],
+      }));
+    }
+  };
+
   const handleOpenModal = (project = null) => {
     if (project) {
       setNewProject({
@@ -117,6 +127,10 @@ const Dashboard = () => {
     setIsModalOpen(false);
   };
 
+  const handleViewProject = (projectId) => {
+    navigate(`/project/${projectId}`);
+  };
+
   const DESCRIPTION_LIMIT = 150;
 
   const handleInputChange = (e) => {
@@ -127,16 +141,6 @@ const Dashboard = () => {
     }
 
     setNewProject((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleAddCollaborator = () => {
-    const collaboratorName = prompt("Enter collaborator's name:");
-    if (collaboratorName) {
-      setNewProject((prev) => ({
-        ...prev,
-        collaborators: [...prev.collaborators, collaboratorName],
-      }));
-    }
   };
 
   const handleSaveProject = () => {
@@ -167,10 +171,6 @@ const Dashboard = () => {
     }
   };
 
-  const handleProjectDisplay = () => {
-    navigate("/ProjectDisplay");
-  };
-
   const daysInMonth = getDaysInMonth(date.month, date.year);
 
   return (
@@ -190,12 +190,6 @@ const Dashboard = () => {
                 <button className="add-project" onClick={() => handleOpenModal()}>
                   +
                 </button>
-                <button
-                  className="project-display"
-                  onClick={() => navigate("/ProjectDisplay")} // Ensure this matches the route
-                >
-                  <FaUserCircle />
-                </button>
               </div>
             </div>
             <div className="projects-body">
@@ -212,6 +206,9 @@ const Dashboard = () => {
                       <div className="project-actions">
                         <button onClick={() => handleOpenModal(project)} className="edit-button">
                           <FaEdit />
+                        </button>
+                        <button onClick={() => handleViewProject(project.id)} className="view-button">
+                          <FaEye />
                         </button>
                         <button onClick={() => handleDeleteProject(project.id)} className="delete-button">
                           <FaTrash />
