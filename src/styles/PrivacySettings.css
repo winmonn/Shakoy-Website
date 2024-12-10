@@ -2,14 +2,14 @@
 .privacy-settings-container {
     display: flex;
     height: 100vh;
-    background-color: #f5e6d3;
+    background-color: #e7d4b5;
     font-family: 'Arial', sans-serif;
   }
   
   /* Sidebar */
   .settings-sidebar {
     width: 20%;
-    background-color: #f7e1c5;
+    background-color: #e7d4b5;
     padding: 20px;
     border-right: 1px solid #814735;
     text-align: center;

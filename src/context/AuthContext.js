@@ -17,20 +17,40 @@ export const AuthProvider = ({ children }) => {
     const storedUser = localStorage.getItem('user');
     const storedAuth = localStorage.getItem('isAuthenticated');
 
-    if (storedAuth === 'true' && storedUser) {
-      setUser(JSON.parse(storedUser));
-      setIsAuthenticated(true);
+    try {
+      const parsedUser = JSON.parse(storedUser);
+
+      if (storedAuth === 'true' && parsedUser) {
+        setUser(parsedUser);
+        setIsAuthenticated(true);
+      } else {
+        localStorage.removeItem('user');
+        localStorage.removeItem('isAuthenticated');
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+    } catch (error) {
+      console.error('Error parsing user data:', error);
+      localStorage.removeItem('user');
+      localStorage.removeItem('isAuthenticated');
+      setUser(null);
+      setIsAuthenticated(false);
     }
+
     setLoading(false); // Set loading to false after initialization
   }, []);
 
   // Login function
   const login = ({ username, password }) => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
+
     if (storedUser && storedUser.username === username && storedUser.password === password) {
+      setUser(storedUser);
       setIsAuthenticated(true);
       return true;
     }
+
+    setIsAuthenticated(false); // Ensure unauthenticated state is clear
     return false;
   };
 
