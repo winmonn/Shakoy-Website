@@ -1,17 +1,47 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/Settings.css';
 import logo from '../images/ShakoyLogo.png'; // Replace with your logo image path
 import { Link } from 'react-router-dom'; // Import Link from react-router-dom
-
+import { useAuth } from '../context/AuthContext'; // Import AuthContext
 
 const Settings = () => {
+  const { user, updateProfilePhoto } = useAuth(); // Get user data and update function from AuthContext
+  const [profilePhoto, setProfilePhoto] = useState(null); // State for profile photo
+
+  // Load profile photo from user object on component mount
+  useEffect(() => {
+    if (user && user.profilePhoto) {
+      setProfilePhoto(user.profilePhoto);
+    }
+  }, [user]);
+
+  // Handle file upload
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64Image = reader.result;
+        setProfilePhoto(base64Image); // Set the image in state
+        updateProfilePhoto(base64Image); // Update in AuthContext and localStorage
+      };
+      reader.readAsDataURL(file); // Convert file to base64 string
+    }
+  };
+
+  // Remove profile photo
+  const handleRemovePhoto = () => {
+    setProfilePhoto(null);
+    updateProfilePhoto(null); // Update in AuthContext and localStorage
+  };
+
   return (
     <div className="settings-container">
       {/* Sidebar */}
       <div className="settings-sidebar">
         <img src={logo} alt="Shakoy Logo" className="sidebar-logo" />
         <ul className="sidebar-links">
-        <li className="active">Account Settings</li>
+          <li className="active">Account Settings</li>
           <li>
             <Link to="/login-security">Login & Security</Link>
           </li>
@@ -31,17 +61,37 @@ const Settings = () => {
       <div className="settings-main">
         <h2>Profile Photo</h2>
         <div className="profile-section">
-          <div className="profile-photo-placeholder"></div>
+          <div className="profile-photo-placeholder">
+            {profilePhoto ? (
+              <img src={profilePhoto} alt="Profile" />
+            ) : (
+              <div className="placeholder-text">No Photo</div>
+            )}
+          </div>
           <div className="photo-buttons">
-            <button className="change-photo-button">Change Photo</button>
-            <button className="remove-photo-button">Remove Photo</button>
+            <input
+              type="file"
+              id="file-input"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={handleFileChange}
+            />
+            <label htmlFor="file-input" className="change-photo-button">
+              Change Photo
+            </label>
+            <button
+              className="remove-photo-button"
+              onClick={handleRemovePhoto}
+            >
+              Remove Photo
+            </button>
           </div>
         </div>
 
         <div className="settings-field">
           <label>Name</label>
           <div className="field-content">
-            <input type="text" value="Jude M. Ando" readOnly />
+            <input type="text" value={user?.username || ''} readOnly />
             <button>Edit</button>
           </div>
         </div>
@@ -49,7 +99,7 @@ const Settings = () => {
         <div className="settings-field">
           <label>Email</label>
           <div className="field-content">
-            <input type="email" value="23101876@usc.edu.ph" readOnly />
+            <input type="email" value={user?.email || ''} readOnly />
             <button>Edit</button>
           </div>
         </div>

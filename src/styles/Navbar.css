@@ -24,8 +24,9 @@
 }
 
 .logo-image {
-  width: 150px; /* Maintain aspect ratio */
-  margin-right: 10px; /* Add spacing from logo text */
+  width: 5.5em !important; /* Increase width */
+  height: auto !important; /* Maintain aspect ratio */
+  margin-right: 10px;
 }
 
 .logo-text {
@@ -87,8 +88,8 @@
 
 /* Profile Image */
 .profile-image {
-  width: 40px; /* Adjust size of the profile image */
-  height: 40px; /* Ensure it's square */
+  width: 4em; /* Adjust size of the profile image */
+  height: 4em; /* Ensure it's square */
   border-radius: 50%; /* Make it circular */
   cursor: pointer; /* Indicate it's clickable */
   /* border: 2px solid #783431; Optional: Add a border for styling */

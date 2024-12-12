@@ -32,6 +32,10 @@ const Navbar = () => {
     };
   }, []);
 
+  // Get profile photo from user or use default
+  const defaultProfileImage = require('../images/profile-icon.png');
+  const profilePhoto = user?.profilePhoto || defaultProfileImage;
+
   return (
     <nav className="navbar">
       {/* Logo on the left */}
@@ -50,7 +54,7 @@ const Navbar = () => {
             {/* Profile Dropdown */}
             <div className="profile-dropdown">
               <img
-                src={require('../images/profile-icon.png')} // Replace with your image path
+                src={profilePhoto} // Use user's profile photo or default
                 alt="Profile"
                 className="profile-image"
                 title="Profile"
@@ -59,21 +63,21 @@ const Navbar = () => {
 
               {/* Dropdown Menu */}
               {isDropdownOpen && (
-              <div className="dropdown-menu">
-                <Link to="/Settings" className="dropdown-item" onClick={closeDropdown}>
-                  Settings
-                </Link>
-                <span
-                  className="dropdown-item" // Using the same class as Settings
-                  onClick={() => {
-                    logout(); // Logs the user out
-                    closeDropdown(); // Closes the dropdown
-                    navigate('/'); // Redirect to Dashboard page
-                  }}
-                >
-                  Log Out
-                </span>
-              </div>              
+                <div className="dropdown-menu">
+                  <Link to="/Settings" className="dropdown-item" onClick={closeDropdown}>
+                    Settings
+                  </Link>
+                  <span
+                    className="dropdown-item"
+                    onClick={() => {
+                      logout(); // Logs the user out
+                      closeDropdown(); // Closes the dropdown
+                      navigate('/'); // Redirect to home page
+                    }}
+                  >
+                    Log Out
+                  </span>
+                </div>
               )}
             </div>
           </>

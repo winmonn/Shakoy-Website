@@ -23,7 +23,9 @@ export const AuthProvider = ({ children }) => {
 
   // Login function (using username and password)
   const login = ({ username, password }) => {
-    if (user && user.username === username && user.password === password) {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    if (storedUser && storedUser.username === username && storedUser.password === password) {
+      setUser(storedUser);
       setIsAuthenticated(true);
       return true;
     }
@@ -44,8 +46,15 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user'); // Remove user data
   };
 
+  // Update profile photo function
+  const updateProfilePhoto = (profilePhoto) => {
+    const updatedUser = { ...user, profilePhoto };
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser)); // Update localStorage
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, signup, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, signup, logout, updateProfilePhoto }}>
       {children}
     </AuthContext.Provider>
   );
