@@ -1,14 +1,22 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // Import Link
+import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 import '../styles/LoginSecurity.css';
 import logo from '../images/ShakoyLogo.png'; // Replace with your logo path
 
 const LoginSecurity = () => {
+  const navigate = useNavigate(); // Initialize useNavigate
+
   return (
     <div className="login-security-container">
       {/* Sidebar */}
       <div className="settings-sidebar">
-        <img src={logo} alt="Shakoy Logo" className="sidebar-logo" />
+        <img
+          src={logo}
+          alt="Shakoy Logo"
+          className="sidebar-logo"
+          onClick={() => navigate('/dashboard')} // Redirect to dashboard on click
+          style={{ cursor: 'pointer' }} // Add pointer cursor for clarity
+        />
         <ul className="sidebar-links">
           <li>
             <Link to="/settings">Account Settings</Link> {/* Navigate to /settings */}

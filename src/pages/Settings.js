@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/Settings.css';
 import logo from '../images/ShakoyLogo.png'; // Replace with your logo image path
-import { Link } from 'react-router-dom'; // Import Link from react-router-dom
+import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 import { useAuth } from '../context/AuthContext'; // Import AuthContext
 
 const Settings = () => {
   const { user, updateProfilePhoto } = useAuth(); // Get user data and update function from AuthContext
   const [profilePhoto, setProfilePhoto] = useState(null); // State for profile photo
+  const navigate = useNavigate(); // Initialize useNavigate
 
   // Load profile photo from user object on component mount
   useEffect(() => {
@@ -39,7 +40,13 @@ const Settings = () => {
     <div className="settings-container">
       {/* Sidebar */}
       <div className="settings-sidebar">
-        <img src={logo} alt="Shakoy Logo" className="sidebar-logo" />
+        <img
+          src={logo}
+          alt="Shakoy Logo"
+          className="sidebar-logo"
+          onClick={() => navigate('/dashboard')} // Redirect to dashboard on click
+          style={{ cursor: 'pointer' }} // Add pointer cursor for clarity
+        />
         <ul className="sidebar-links">
           <li className="active">Account Settings</li>
           <li>

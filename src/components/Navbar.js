@@ -39,11 +39,12 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       {/* Logo on the left */}
-      <div className="logo">
+      <div className="logo" onClick={() => navigate('/dashboard')}>
         <img
           src={require('../images/ShakoyLogo.png')}
           alt="Shakoy Logo"
           className="logo-image"
+          style={{ cursor: 'pointer' }} // Add cursor pointer to indicate clickable
         />
       </div>
 
@@ -64,7 +65,7 @@ const Navbar = () => {
               {/* Dropdown Menu */}
               {isDropdownOpen && (
                 <div className="dropdown-menu">
-                  <Link to="/Settings" className="dropdown-item" onClick={closeDropdown}>
+                  <Link to="/settings" className="dropdown-item" onClick={closeDropdown}>
                     Settings
                   </Link>
                   <span
