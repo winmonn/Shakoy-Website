@@ -8,6 +8,7 @@
   margin-top: 100px;
   /* Space below the navbar */
   justify-items: center;
+  display:flex;
 }
 
 .dashboard-header
@@ -505,3 +506,93 @@
   color: #4b2f2e;
 }
 
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  background-color: #fef6e4;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  height: 100vh; /* Full viewport height */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Space between header and footer */
+  position: fixed; /* Keep the sidebar fixed on the left */
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sidebar h2 {
+  font-size: 1.5rem;
+  color: #734a48;
+  margin-bottom: 10px;
+}
+
+.add-category {
+  font-size: 1.2rem;
+  background-color: #734a48;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-category:hover {
+  background-color: #5b3837;
+  transform: scale(1.1);
+  transition: all 0.2s ease-in-out;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-grow: 1; /* Ensure categories take up remaining space */
+  overflow-y: auto; /* Add scrolling for longer lists */
+}
+
+.sidebar .category-item {
+  padding: 10px;
+  background-color: #f5e4c3;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.sidebar .category-item:hover {
+  background-color: #ffe1af;
+  transform: translateY(-3px);
+}
+
+.no-categories {
+  font-size: 0.9rem;
+  color: #734a48;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.category-item.active {
+  background-color: #734a48; /* Yellow highlight for active category */
+  color: #fff;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Ensure main content respects the fixed sidebar */
+.dashboard-main {
+  margin-left: 270px; /* Adjust margin to account for sidebar width */
+  flex: 1;
+  padding: 20px;
+}

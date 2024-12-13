@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import "../styles/Dashboard.css";
-import { FaEdit, FaTrash, FaUserCircle, FaEye } from "react-icons/fa"; // Added FaEye for "View Project" button
+import { FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
 
 const months = [
   "January", "February", "March", "April", "May", "June",
@@ -11,77 +11,122 @@ const months = [
 
 const getDaysInMonth = (month, year) => new Date(year, month + 1, 0).getDate();
 
-const calculateCompletion = (deadline) => {
-  const today = new Date();
-  const deadlineDate = new Date(deadline);
-
-  if (today >= deadlineDate) {
-    return 100;
-  }
-
-  const totalDays = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
-  const elapsedDays = Math.ceil(
-    (today - new Date(today.getFullYear(), today.getMonth(), today.getDate())) /
-      (1000 * 60 * 60 * 24)
-  );
-
-  const progress = ((elapsedDays / totalDays) * 100).toFixed(2);
-
-  return Math.min(Math.max(progress, 0), 100);
-};
-
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      name: "WEB DEV 2",
-      description: "All tasks for CIS 2102 Web Development II.",
-      status: "In Progress",
-      collaborators: [],
-      deadline: "2024-11-28",
-      completion: 0,
-    },
-    {
-      id: 2,
-      name: "Networking 2",
-      description: "All tasks for CIS 2105 Networking II.",
-      status: "In Progress",
-      collaborators: [],
-      deadline: "2024-11-30",
-      completion: 0,
-    },
-  ]);
+
+  const [projects, setProjects] = useState(() => {
+    const savedProjects = JSON.parse(localStorage.getItem("projects"));
+    return savedProjects || [];
+  });
+
+  const [categories, setCategories] = useState(() => {
+    const savedCategories = JSON.parse(localStorage.getItem("categories"));
+    return savedCategories || [];
+  });
+
+  const [tasks, setTasks] = useState(() => {
+    const savedTasks = JSON.parse(localStorage.getItem("tasks"));
+    return savedTasks || [];
+  });
 
   const [newProject, setNewProject] = useState({
     id: null,
     name: "",
     description: "",
-    collaborators: [],
+    category: "",
     deadline: "",
   });
 
   const [editingProject, setEditingProject] = useState(null);
-  const [date, setDate] = useState({ month: 10, year: 2024 });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [date, setDate] = useState({ month: new Date().getMonth(), year: new Date().getFullYear() });
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   useEffect(() => {
-    const today = new Date();
-
-    setProjects((prevProjects) =>
-      prevProjects.map((project) => {
-        const completion = calculateCompletion(project.deadline);
-        const status = today >= new Date(project.deadline) ? "Completed" : "In Progress";
-
-        return { ...project, completion, status };
-      })
-    );
+    localStorage.setItem("projects", JSON.stringify(projects));
   }, [projects]);
 
+  useEffect(() => {
+    localStorage.setItem("categories", JSON.stringify(categories));
+  }, [categories]);
+
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
+
+  useEffect(() => {
+    // Update project completion percentage based on tasks
+    const updatedProjects = projects.map((project) => {
+      const projectTasks = tasks.filter((task) => task.projectId === project.id);
+      const completedTasks = projectTasks.filter((task) => task.status === "Completed").length;
+      const totalTasks = projectTasks.length;
+      const completion = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+      return { ...project, completion };
+    });
+    setProjects(updatedProjects);
+  }, [tasks]);
+
+  const handleAddCategory = () => {
+    const categoryName = prompt("Enter category name:");
+    if (categoryName) {
+      setCategories((prev) => [...prev, categoryName]);
+    }
+  };
+
+  const handleOpenModal = (project = null) => {
+    if (project) {
+      setNewProject({
+        id: project.id,
+        name: project.name,
+        description: project.description,
+        category: project.category || "",
+        deadline: project.deadline || "",
+      });
+      setEditingProject(project);
+    } else {
+      setNewProject({ id: null, name: "", description: "", category: "", deadline: "" });
+    }
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setNewProject({ id: null, name: "", description: "", category: "", deadline: "" });
+    setEditingProject(null);
+    setIsModalOpen(false);
+  };
+
+  const handleSaveProject = () => {
+    if (!newProject.name || !newProject.description || !newProject.deadline || !newProject.category) {
+      alert("Please fill in all fields before saving the project.");
+      return;
+    }
+
+    if (editingProject) {
+      setProjects((prev) =>
+        prev.map((project) => (project.id === editingProject.id ? { ...project, ...newProject } : project))
+      );
+    } else {
+      setProjects((prev) => [
+        ...prev,
+        { ...newProject, id: Date.now(), status: "In Progress", completion: 0 },
+      ]);
+    }
+
+    handleCloseModal();
+  };
+
+  const handleDeleteProject = (projectId) => {
+    const confirmed = window.confirm("Are you sure you want to delete this project?");
+    if (confirmed) {
+      setProjects((prev) => prev.filter((project) => project.id !== projectId));
+      setTasks((prev) => prev.filter((task) => task.projectId !== projectId)); // Remove tasks of the deleted project
+    }
+  };
+
   const handleMonthChange = (direction) => {
-    setDate((prevDate) => {
-      let newMonth = prevDate.month + direction;
-      let newYear = prevDate.year;
+    setDate((prev) => {
+      let newMonth = prev.month + direction;
+      let newYear = prev.year;
 
       if (newMonth < 0) {
         newMonth = 11;
@@ -95,189 +140,138 @@ const Dashboard = () => {
     });
   };
 
-  const handleAddCollaborator = () => {
-    const collaboratorName = prompt("Enter collaborator's name:");
-    if (collaboratorName) {
-      setNewProject((prev) => ({
-        ...prev,
-        collaborators: [...prev.collaborators, collaboratorName],
-      }));
-    }
-  };
-
-  const handleOpenModal = (project = null) => {
-    if (project) {
-      setNewProject({
-        id: project.id,
-        name: project.name,
-        description: project.description,
-        collaborators: project.collaborators || [],
-        deadline: project.deadline || "",
-      });
-      setEditingProject(project);
-    } else {
-      setNewProject({ id: null, name: "", description: "", collaborators: [], deadline: "" });
-    }
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setNewProject({ id: null, name: "", description: "", collaborators: [], deadline: "" });
-    setEditingProject(null);
-    setIsModalOpen(false);
-  };
-
   const handleViewProject = (projectId) => {
-    navigate(`/project/${projectId}`);
-  };
-
-  const DESCRIPTION_LIMIT = 150;
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-
-    if (name === "description" && value.length > DESCRIPTION_LIMIT) {
-      return;
-    }
-
-    setNewProject((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSaveProject = () => {
-    if (!newProject.name || !newProject.description || !newProject.deadline) {
-      alert("Please fill in all fields before saving the project.");
-      return;
-    }
-
-    if (editingProject) {
-      setProjects((prevProjects) =>
-        prevProjects.map((project) =>
-          project.id === editingProject.id ? { ...project, ...newProject } : project
-        )
-      );
-    } else {
-      setProjects((prev) => [
-        ...prev,
-        { ...newProject, id: Date.now(), status: "In Progress", completion: 0 },
-      ]);
-    }
-    handleCloseModal();
-  };
-
-  const handleDeleteProject = (projectId) => {
-    const confirmed = window.confirm("Are you sure you want to delete this project?");
-    if (confirmed) {
-      setProjects((prevProjects) => prevProjects.filter((project) => project.id !== projectId));
-    }
+    const project = projects.find((proj) => proj.id === projectId);
+    const projectTasks = tasks.filter((task) => task.projectId === projectId);
+    navigate(`/project/${projectId}`, { state: { project, tasks: projectTasks } });
   };
 
   const daysInMonth = getDaysInMonth(date.month, date.year);
+
+  const filteredProjects = selectedCategory
+    ? projects.filter((project) => project.category === selectedCategory)
+    : projects;
 
   return (
     <div>
       <Navbar />
 
       <div className="dashboard-container">
-        <header className="dashboard-header">
-          <h1>Making Task Management a Piece of Shakoy</h1>
-        </header>
+        <aside className="sidebar">
+          <div className="sidebar-header">
+            <h2>Categories</h2>
+            <button className="add-category" onClick={handleAddCategory}>
+              <FaPlus />
+            </button>
+          </div>
+          <ul>
+            {categories.length > 0 ? (
+              categories.map((category, index) => (
+                <li
+                  key={index}
+                  className={`category-item ${selectedCategory === category ? "active" : ""}`}
+                  onClick={() => setSelectedCategory(category)}
+                >
+                  {category}
+                </li>
+              ))
+            ) : (
+              <p>No categories yet. Add some!</p>
+            )}
+          </ul>
+        </aside>
 
-        <div className="dashboard-content">
-          <div className="projects-list">
-            <div className="projects-header">
-              <h2>Projects</h2>
-              <div>
+        <div className="dashboard-main">
+          <header className="dashboard-header">
+            <h1>Making Task Management a Piece of Shakoy</h1>
+          </header>
+
+          <div className="dashboard-content">
+            <div className="projects-list">
+              <div className="projects-header">
+                <h2>Projects</h2>
                 <button className="add-project" onClick={() => handleOpenModal()}>
                   +
                 </button>
               </div>
-            </div>
-            <div className="projects-body">
-              {projects.length > 0 ? (
-                projects.map((project) => (
-                  <div className={`project-card ${project.status.toLowerCase()}`} key={project.id}>
-                    <div className="project-header">
-                      <h3>
-                        {project.name}
-                        <span className={`status ${project.status.toLowerCase().replace(" ", "-")}`}>
-                          {project.status}
-                        </span>
-                      </h3>
-                      <div className="project-actions">
-                        <button onClick={() => handleOpenModal(project)} className="edit-button">
-                          <FaEdit />
-                        </button>
-                        <button onClick={() => handleViewProject(project.id)} className="view-button">
-                          <FaEye />
-                        </button>
-                        <button onClick={() => handleDeleteProject(project.id)} className="delete-button">
-                          <FaTrash />
-                        </button>
+              <div className="projects-body">
+                {filteredProjects.length > 0 ? (
+                  filteredProjects.map((project) => (
+                    <div className={`project-card ${project.status.toLowerCase()}`} key={project.id}>
+                      <div className="project-header">
+                        <h3>
+                          {project.name}
+                          <span className={`status ${project.status.toLowerCase().replace(" ", "-")}`}>
+                            {project.status}
+                          </span>
+                        </h3>
+                        <div className="project-actions">
+                          <button onClick={() => handleOpenModal(project)} className="edit-button">
+                            <FaEdit />
+                          </button>
+                          <button onClick={() => handleViewProject(project.id)} className="view-button">
+                            <FaEye />
+                          </button>
+                          <button onClick={() => handleDeleteProject(project.id)} className="delete-button">
+                            <FaTrash />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                    <p>{project.description}</p>
-                    <p>
-                      <strong>Deadline:</strong> {project.deadline}
-                    </p>
-                    {project.collaborators.length > 0 && (
-                      <p className="collaborators">
-                        <strong>Collaborators:</strong>
-                        {project.collaborators.map((collaborator, index) => (
-                          <span key={index}>{collaborator}</span>
-                        ))}
+                      <p>{project.description}</p>
+                      <p>
+                        <strong>Category:</strong> {project.category}
                       </p>
-                    )}
-                    <div className="progress-container">
-                      <label>Completion:</label>
-                      <div className="progress-bar">
-                        <div
-                          className="progress-bar-fill"
-                          style={{ width: `${project.completion}%` }}
-                        />
+                      <p>
+                        <strong>Deadline:</strong> {project.deadline}
+                      </p>
+                      <div className="progress-container">
+                        <label>Completion:</label>
+                        <div className="progress-bar">
+                          <div
+                            className="progress-bar-fill"
+                            style={{ width: `${project.completion}%` }}
+                          />
+                        </div>
+                        <span>{project.completion}%</span>
                       </div>
-                      <span>{project.completion}%</span>
                     </div>
-                  </div>
-                ))
-              ) : (
-                <p>No projects found.</p>
-              )}
+                  ))
+                ) : (
+                  <p>No projects found for this category.</p>
+                )}
+              </div>
             </div>
-          </div>
 
-          <div className="calendar">
-            <div className="calendar-header">
-              <button className="nav-arrow" onClick={() => handleMonthChange(-1)}>
-                &lt;
-              </button>
-              <h2>{`${months[date.month]} ${date.year}`}</h2>
-              <button className="nav-arrow" onClick={() => handleMonthChange(1)}>
-                &gt;
-              </button>
-            </div>
-            <div className="calendar-grid">
-              {["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"].map((day) => (
-                <div className="day-name" key={day}>
-                  {day}
-                </div>
-              ))}
-              {[...Array(daysInMonth)].map((_, i) => {
-                const day = i + 1;
-                const isDeadline = projects.some((project) => {
-                  const projectDeadline = new Date(project.deadline);
+            <div className="calendar">
+              <div className="calendar-header">
+                <button className="nav-arrow" onClick={() => handleMonthChange(-1)}>
+                  &lt;
+                </button>
+                <h2>{`${months[date.month]} ${date.year}`}</h2>
+                <button className="nav-arrow" onClick={() => handleMonthChange(1)}>
+                  &gt;
+                </button>
+              </div>
+              <div className="calendar-grid">
+                {Array.from({ length: daysInMonth }, (_, i) => {
+                  const day = i + 1;
+                  const isDeadline = projects.some((project) => {
+                    const deadline = new Date(project.deadline);
+                    return (
+                      deadline.getFullYear() === date.year &&
+                      deadline.getMonth() === date.month &&
+                      deadline.getDate() === day
+                    );
+                  });
+                  const deadlineHighlight = isDeadline ? "highlight" : "";
+
                   return (
-                    projectDeadline.getFullYear() === date.year &&
-                    projectDeadline.getMonth() === date.month &&
-                    projectDeadline.getDate() === day
+                    <div key={day} className={`day-number ${deadlineHighlight}`}>
+                      {day}
+                    </div>
                   );
-                });
-
-                return (
-                  <div key={day} className={`day-number ${isDeadline ? "highlight" : ""}`}>
-                    {day}
-                  </div>
-                );
-              })}
+                })}
+              </div>
             </div>
           </div>
         </div>
@@ -296,8 +290,7 @@ const Dashboard = () => {
                 type="text"
                 name="name"
                 value={newProject.name}
-                onChange={handleInputChange}
-                placeholder="Enter project name"
+                onChange={(e) => setNewProject((prev) => ({ ...prev, name: e.target.value }))}
               />
             </div>
             <div className="form-group">
@@ -305,40 +298,35 @@ const Dashboard = () => {
               <textarea
                 name="description"
                 value={newProject.description}
-                onChange={handleInputChange}
-                placeholder={`Enter project description (Max ${DESCRIPTION_LIMIT} characters)`}
+                onChange={(e) => setNewProject((prev) => ({ ...prev, description: e.target.value }))}
               />
-              <small>
-                {newProject.description.length}/{DESCRIPTION_LIMIT} characters
-              </small>
+            </div>
+            <div className="form-group">
+              <label>Category</label>
+              <select
+                name="category"
+                value={newProject.category}
+                onChange={(e) => setNewProject((prev) => ({ ...prev, category: e.target.value }))}
+              >
+                <option value="">Select a category</option>
+                {categories.map((category, index) => (
+                  <option key={index} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="form-group">
               <label>Deadline</label>
               <input
                 type="date"
                 name="deadline"
-                value={newProject.deadline || ""}
-                onChange={handleInputChange}
+                value={newProject.deadline}
+                onChange={(e) => setNewProject((prev) => ({ ...prev, deadline: e.target.value }))}
               />
-            </div>
-            <div className="form-group">
-              <label>Collaborators</label>
-              <div className="collaborators">
-                {newProject.collaborators.map((collaborator, index) => (
-                  <span className="collaborator" key={index}>
-                    {collaborator}
-                  </span>
-                ))}
-                <button className="add-collaborator" onClick={handleAddCollaborator}>
-                  +
-                </button>
-              </div>
             </div>
             <button className="create-project" onClick={handleSaveProject}>
               {editingProject ? "Save Changes" : "Create Project"}
-            </button>
-            <button className="discard" onClick={handleCloseModal}>
-              Discard
             </button>
           </div>
         </div>

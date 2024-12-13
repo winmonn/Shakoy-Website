@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "../styles/ProjectView.css";
+
+const months = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
 
 const TaskCard = ({ task, onEdit, onDelete, onToggleStatus }) => (
   <div className="project-view-task-card" key={task.id}>
@@ -33,10 +38,19 @@ const TaskCard = ({ task, onEdit, onDelete, onToggleStatus }) => (
   </div>
 );
 
-const ProjectView = ({ allTasks = [], allProjects = [] }) => {
+const ProjectView = () => {
   const { projectId } = useParams();
-  const [tasks, setTasks] = useState([]);
-  const [projectName, setProjectName] = useState("Unknown Project");
+  const location = useLocation();
+
+  // Retrieve project and tasks from navigation state
+  const [tasks, setTasks] = useState(() => {
+    const savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    return savedTasks.filter((task) => task.projectId === Number(projectId));
+  });
+  const [projectName, setProjectName] = useState(
+    location.state?.project?.name || "Unknown Project"
+  );
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentTask, setCurrentTask] = useState(null);
@@ -47,14 +61,14 @@ const ProjectView = ({ allTasks = [], allProjects = [] }) => {
     deadline: null,
   });
   const [tagInput, setTagInput] = useState("");
+  const [date, setDate] = useState({ month: new Date().getMonth(), year: new Date().getFullYear() });
 
   useEffect(() => {
-    const filteredTasks = allTasks.filter(task => task.projectId === Number(projectId));
-    setTasks(filteredTasks);
-
-    const project = allProjects.find(project => project.id === Number(projectId));
-    setProjectName(project ? project.name : "Unknown Project");
-  }, [projectId, allTasks, allProjects]);
+    // Save tasks to localStorage when they change
+    const allTasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    const otherTasks = allTasks.filter((task) => task.projectId !== Number(projectId));
+    localStorage.setItem("tasks", JSON.stringify([...otherTasks, ...tasks]));
+  }, [tasks, projectId]);
 
   const openAddModal = () => {
     setNewTask({ name: "", description: "", tags: [], deadline: null });
@@ -70,7 +84,7 @@ const ProjectView = ({ allTasks = [], allProjects = [] }) => {
   };
 
   const handleAddTask = () => {
-    setTasks(prev => [
+    setTasks((prev) => [
       ...prev,
       { id: Date.now(), ...newTask, status: "In Progress", projectId: Number(projectId) },
     ]);
@@ -78,19 +92,19 @@ const ProjectView = ({ allTasks = [], allProjects = [] }) => {
   };
 
   const handleSaveTask = () => {
-    setTasks(prev =>
-      prev.map(task => (task.id === currentTask.id ? { ...newTask, id: task.id } : task))
+    setTasks((prev) =>
+      prev.map((task) => (task.id === currentTask.id ? { ...newTask, id: task.id } : task))
     );
     setIsModalOpen(false);
   };
 
   const handleDeleteTask = (taskId) => {
-    setTasks(prev => prev.filter(task => task.id !== taskId));
+    setTasks((prev) => prev.filter((task) => task.id !== taskId));
   };
 
   const handleToggleStatus = (taskId) => {
-    setTasks(prev =>
-      prev.map(task =>
+    setTasks((prev) =>
+      prev.map((task) =>
         task.id === taskId
           ? { ...task, status: task.status === "Completed" ? "In Progress" : "Completed" }
           : task
@@ -100,19 +114,19 @@ const ProjectView = ({ allTasks = [], allProjects = [] }) => {
 
   const handleAddTag = () => {
     if (!tagInput.trim()) return;
-    setNewTask(prev => ({ ...prev, tags: [...prev.tags, tagInput.trim()] }));
+    setNewTask((prev) => ({ ...prev, tags: [...prev.tags, tagInput.trim()] }));
     setTagInput("");
   };
 
   const handleRemoveTag = (tagToRemove) => {
-    setNewTask(prev => ({
+    setNewTask((prev) => ({
       ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove),
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
     }));
   };
 
   const renderTasks = (filterCondition) =>
-    tasks.filter(filterCondition).map(task => (
+    tasks.filter(filterCondition).map((task) => (
       <TaskCard
         key={task.id}
         task={task}
@@ -122,7 +136,6 @@ const ProjectView = ({ allTasks = [], allProjects = [] }) => {
       />
     ));
 
-  // Helper function to check if a task's deadline is today
   const isToday = (date) => {
     const today = new Date();
     const taskDate = new Date(date);
@@ -131,6 +144,48 @@ const ProjectView = ({ allTasks = [], allProjects = [] }) => {
       taskDate.getMonth() === today.getMonth() &&
       taskDate.getFullYear() === today.getFullYear()
     );
+  };
+
+  const getDaysInMonth = (month, year) => new Date(year, month + 1, 0).getDate();
+
+  const handleMonthChange = (direction) => {
+    setDate((prevDate) => {
+      let newMonth = prevDate.month + direction;
+      let newYear = prevDate.year;
+
+      if (newMonth < 0) {
+        newMonth = 11;
+        newYear -= 1;
+      } else if (newMonth > 11) {
+        newMonth = 0;
+        newYear += 1;
+      }
+
+      return { month: newMonth, year: newYear };
+    });
+  };
+
+  const daysInMonth = getDaysInMonth(date.month, date.year);
+
+  const renderCalendar = () => {
+    return Array.from({ length: daysInMonth }, (_, i) => {
+      const day = i + 1;
+      const isDeadline = tasks.some((task) => {
+        const taskDeadline = new Date(task.deadline);
+        return (
+          taskDeadline.getFullYear() === date.year &&
+          taskDeadline.getMonth() === date.month &&
+          taskDeadline.getDate() === day
+        );
+      });
+      const highlightClass = isDeadline ? "highlight" : "";
+
+      return (
+        <div key={day} className={`day-number ${highlightClass}`}>
+          {day}
+        </div>
+      );
+    });
   };
 
   return (
@@ -148,21 +203,30 @@ const ProjectView = ({ allTasks = [], allProjects = [] }) => {
           <div className="project-view-tasks">
             <h2>Tasks</h2>
             <div className="project-view-task-cards">
-              {renderTasks(task => task.status !== "Completed" && (!task.deadline || !isToday(task.deadline)))}
+              {renderTasks((task) => task.status !== "Completed" && (!task.deadline || !isToday(task.deadline)))}
             </div>
           </div>
 
-          <div className="project-view-day">
-            <h2>This Day</h2>
-            <div className="project-view-task-cards">
-              {renderTasks(task => task.deadline && isToday(task.deadline) && task.status !== "Completed")}
+          <div className="project-view-calendar">
+            <h2>Calendar</h2>
+            <div className="calendar">
+              <div className="calendar-header">
+                <button className="nav-arrow" onClick={() => handleMonthChange(-1)}>
+                  &lt;
+                </button>
+                <h2>{`${months[date.month]} ${date.year}`}</h2>
+                <button className="nav-arrow" onClick={() => handleMonthChange(1)}>
+                  &gt;
+                </button>
+              </div>
+              <div className="calendar-grid">{renderCalendar()}</div>
             </div>
           </div>
 
           <div className="project-view-completed">
             <h2>Completed Tasks</h2>
             <div className="project-view-task-cards">
-              {renderTasks(task => task.status === "Completed")}
+              {renderTasks((task) => task.status === "Completed")}
             </div>
           </div>
         </div>
@@ -189,9 +253,7 @@ const ProjectView = ({ allTasks = [], allProjects = [] }) => {
               <textarea
                 id="task-description"
                 value={newTask.description}
-                onChange={(e) =>
-                  setNewTask({ ...newTask, description: e.target.value })
-                }
+                onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
               />
             </div>
             <div className="form-group">
