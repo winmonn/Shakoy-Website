@@ -464,36 +464,6 @@
   gap: 10px;
 }
 
-.project-display
-{
-  font-size: 1.5rem;
-  background-color: #734a48;
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 10px;
-}
-
-.project-display:hover
-{
-  background-color: #5b3837;
-  transform: scale(1.1);
-  transition: all 0.2s ease-in-out;
-}
-
-.project-display-container
-{
-  text-align: center;
-  margin: 50px auto;
-  max-width: 600px;
-}
-
 .back-to-dashboard
 {
   display: inline-block;
@@ -509,7 +479,8 @@
 }
 
 .edit-button,
-.delete-button
+.delete-button,
+.view-button
 {
   background: none;
   border: none;
@@ -529,3 +500,8 @@
   color: #dc3545;
   /* Red for delete */
 }
+
+.view-button:hover {
+  color: #4b2f2e;
+}
+

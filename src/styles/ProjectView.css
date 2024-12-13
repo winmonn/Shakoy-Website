@@ -1,0 +1,248 @@
+/* Scope all styles under a unique parent class, e.g., `.project-view` */
+.project-view-page {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: #e7d4b5;
+  margin-top: 150px;
+  text-align: center;
+}
+
+.project-view-header {
+  margin-bottom: 20px;
+}
+
+.project-view-add-task-button {
+  background-color: #c07f50;
+  color: black;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 20px;
+  border: none;
+}
+
+.project-view-add-task-button:hover {
+  background-color: #8e5d36;
+}
+
+.project-view-content {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  
+}
+
+.project-view-tasks,
+.project-view-day,
+.project-view-completed {
+  flex: 1;
+  max-width: 50%;
+  background-color: #fef6e4;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.project-view-tasks h2,
+.project-view-day h2,
+.project-view-completed h2 {
+  text-align: center;
+}
+
+.project-view-task-cards {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+}
+
+.project-view-task-card {
+  width: 100%;
+  max-width: 240px; /* Make cards equal in width */
+  min-height: 200px; /* Ensure consistent card height */
+  padding: 15px;
+  background-color: #f6e6cb;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  
+}
+
+.project-view-task-card.project-view-task-completed {
+  background-color: #d4edda;
+}
+
+.project-view-task-card h3 {
+  margin: 0 0 5px 0;
+  font-size: 1.1em;
+}
+
+.project-view-task-card p {
+  font-size: 0.9em;
+  margin: 10px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Limit text to 3 lines */
+  -webkit-box-orient: vertical;
+}
+
+.project-view-task-tags {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.project-view-task-tag,
+.project-view-task-due {
+  padding: 5px 10px;
+  font-size: 0.8em;
+  border-radius: 15px;
+  color: #fff;
+}
+
+.project-view-task-tag {
+  background-color: #c07f50;
+}
+
+.project-view-task-due {
+  background-color: #6c757d;
+}
+
+/* Modal Styles Scoped to Project View */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fef6e4;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.3s ease-in-out;
+  position: relative;
+}
+
+.modal .form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #734a48;
+}
+
+.modal .form-group input,
+.modal .form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.create-project {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.create-project:hover {
+  background-color: #218838;
+}
+
+.discard {
+  background-color: #dc3545;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.discard:hover {
+  background-color: #c82333;
+}
+
+/* Scoped Button Styles under `.project-view` */
+.project-view .button {
+  padding: 10px 15px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.project-view .button-primary {
+  background-color: #c07f50;
+  color: #fff;
+  font-weight: bold;
+}
+
+.project-view .button-primary:hover {
+  background-color: #8e5d36;
+  transform: scale(1.05);
+}
+
+.project-view .button-secondary {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+.project-view .button-secondary:hover {
+  background-color: #565e64;
+  transform: scale(1.05);
+}
+
+.project-view .button-danger {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.project-view .button-danger:hover {
+  background-color: #c82333;
+  transform: scale(1.05);
+}
+
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #734a48;
+}
+
+.close-button:hover {
+  color: #5b3837;
+}
+
+

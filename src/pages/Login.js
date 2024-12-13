@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'; // Import AuthContext
 import '../styles/Login.css'; // Import your CSS for styling
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth(); // Use the login function from AuthContext
   const [credentials, setCredentials] = useState({
     username: '',
     password: '',
   });
   const [error, setError] = useState('');
+
+  // Get the page the user was trying to access, default to "/dashboard"
+  const from = location.state?.from?.pathname || '/dashboard';
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,8 +27,7 @@ const Login = () => {
     // Validate credentials
     const isSuccess = login(credentials);
     if (isSuccess) {
-      alert('Login successful!');
-      navigate('/dashboard'); // Redirect to dashboard
+      navigate(from, { replace: true }); // Redirect to the intended page or dashboard
     } else {
       setError('Invalid username or password.');
     }
