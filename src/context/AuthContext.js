@@ -10,7 +10,7 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // Add a loading state
+  const [loading, setLoading] = useState(true);
 
   // Load user data from localStorage on initialization
   useEffect(() => {
@@ -18,12 +18,13 @@ export const AuthProvider = ({ children }) => {
     const storedAuth = localStorage.getItem('isAuthenticated');
 
     try {
-      const parsedUser = JSON.parse(storedUser);
+      const parsedUser = storedUser ? JSON.parse(storedUser) : null;
 
       if (storedAuth === 'true' && parsedUser) {
         setUser(parsedUser);
         setIsAuthenticated(true);
       } else {
+        // Clear stale data
         localStorage.removeItem('user');
         localStorage.removeItem('isAuthenticated');
         setUser(null);
@@ -35,9 +36,9 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem('isAuthenticated');
       setUser(null);
       setIsAuthenticated(false);
+    } finally {
+      setLoading(false); // Always set loading to false after initialization
     }
-
-    setLoading(false); // Set loading to false after initialization
   }, []);
 
   // Login function
@@ -49,7 +50,7 @@ export const AuthProvider = ({ children }) => {
       return true;
     }
 
-    setIsAuthenticated(false); // Ensure unauthenticated state is clear
+    setIsAuthenticated(false);
     return false;
   };
 
@@ -71,14 +72,15 @@ export const AuthProvider = ({ children }) => {
 
   // Update profile photo function
   const updateProfilePhoto = (profilePhoto) => {
+    if (!user) return;
     const updatedUser = { ...user, profilePhoto };
     setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser)); // Update localStorage
+    localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, user, login, signup, logout, loading, updateProfilePhoto }}>
-      {children}
+      {!loading && children} {/* Prevent rendering until loading is complete */}
     </AuthContext.Provider>
   );
 };

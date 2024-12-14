@@ -245,4 +245,27 @@
   color: #5b3837;
 }
 
+.calendar-grid .day-number.highlight {
+  background-color: green;
+  color: #fff;
+  font-weight: bold;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
 
+
+.calendar-grid .day-number.overdue {
+  background-color: red;
+  color: #fff;
+  font-weight: bold;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.calendar-grid .day-number.current-date {
+  background-color: #fff;
+  color: black;
+  font-weight: bold;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}

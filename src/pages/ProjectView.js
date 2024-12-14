@@ -170,6 +170,12 @@ const ProjectView = () => {
   const renderCalendar = () => {
     return Array.from({ length: daysInMonth }, (_, i) => {
       const day = i + 1;
+      const today = new Date();
+      const isToday =
+        today.getFullYear() === date.year &&
+        today.getMonth() === date.month &&
+        today.getDate() === day;
+  
       const isDeadline = tasks.some((task) => {
         const taskDeadline = new Date(task.deadline);
         return (
@@ -178,8 +184,26 @@ const ProjectView = () => {
           taskDeadline.getDate() === day
         );
       });
-      const highlightClass = isDeadline ? "highlight" : "";
-
+  
+      const isOverdue = tasks.some((task) => {
+        const taskDeadline = new Date(task.deadline);
+        return (
+          taskDeadline.getFullYear() === date.year &&
+          taskDeadline.getMonth() === date.month &&
+          taskDeadline.getDate() === day &&
+          taskDeadline < today &&
+          task.status !== "Completed"
+        );
+      });
+  
+      const highlightClass = isToday
+        ? "current-date"
+        : isDeadline
+        ? isOverdue
+          ? "overdue"
+          : "highlight"
+        : "";
+  
       return (
         <div key={day} className={`day-number ${highlightClass}`}>
           {day}
@@ -187,6 +211,8 @@ const ProjectView = () => {
       );
     });
   };
+  
+  
 
   return (
     <div>

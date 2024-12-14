@@ -55,13 +55,18 @@ const Dashboard = () => {
   }, [tasks]);
 
   useEffect(() => {
-    // Update project completion percentage based on tasks
+    // Update project completion percentage and status
     const updatedProjects = projects.map((project) => {
       const projectTasks = tasks.filter((task) => task.projectId === project.id);
       const completedTasks = projectTasks.filter((task) => task.status === "Completed").length;
       const totalTasks = projectTasks.length;
       const completion = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-      return { ...project, completion };
+
+      // Determine status
+      const isLate = new Date(project.deadline) < new Date() && completion < 100;
+      const status = isLate ? "LATE" : completion === 100 ? "COMPLETED" : "IN PROGRESS";
+
+      return { ...project, completion, status };
     });
     setProjects(updatedProjects);
   }, [tasks]);
@@ -242,97 +247,119 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="calendar">
-              <div className="calendar-header">
-                <button className="nav-arrow" onClick={() => handleMonthChange(-1)}>
-                  &lt;
-                </button>
-                <h2>{`${months[date.month]} ${date.year}`}</h2>
-                <button className="nav-arrow" onClick={() => handleMonthChange(1)}>
-                  &gt;
-                </button>
-              </div>
-              <div className="calendar-grid">
-                {Array.from({ length: daysInMonth }, (_, i) => {
-                  const day = i + 1;
-                  const isDeadline = projects.some((project) => {
-                    const deadline = new Date(project.deadline);
+              <div className="calendar">
+                <div className="calendar-header">
+                  <button className="nav-arrow" onClick={() => handleMonthChange(-1)}>
+                    &lt;
+                  </button>
+                  <h2>{`${months[date.month]} ${date.year}`}</h2>
+                  <button className="nav-arrow" onClick={() => handleMonthChange(1)}>
+                    &gt;
+                  </button>
+                </div>
+                <div className="calendar-grid">
+                  {Array.from({ length: daysInMonth }, (_, i) => {
+                    const day = i + 1;
+
+                    // Find project(s) with a deadline matching this day
+                    const projectForDay = projects.find((project) => {
+                      const deadline = new Date(project.deadline);
+                      return (
+                        deadline.getFullYear() === date.year &&
+                        deadline.getMonth() === date.month &&
+                        deadline.getDate() === day
+                      );
+                    });
+
+                    // Determine the class for the highlight based on project status
+                    let statusHighlight = "";
+                    if (projectForDay) {
+                      if (projectForDay.status === "LATE") {
+                        statusHighlight = "highlight-red";
+                      } else if (projectForDay.status === "IN PROGRESS") {
+                        statusHighlight = "highlight-yellow";
+                      } else if (projectForDay.status === "COMPLETED") {
+                        statusHighlight = "highlight-green";
+                      }
+                    }
+
+                    // Check if the day is the current date
+                    const today = new Date();
+                    const isToday =
+                      today.getFullYear() === date.year &&
+                      today.getMonth() === date.month &&
+                      today.getDate() === day;
+
+                    const currentDateHighlight = isToday ? "current-date" : "";
+
                     return (
-                      deadline.getFullYear() === date.year &&
-                      deadline.getMonth() === date.month &&
-                      deadline.getDate() === day
+                      <div key={day} className={`day-number ${statusHighlight} ${currentDateHighlight}`}>
+                        {day}
+                      </div>
                     );
-                  });
-                  const deadlineHighlight = isDeadline ? "highlight" : "";
-
-                  return (
-                    <div key={day} className={`day-number ${deadlineHighlight}`}>
-                      {day}
-                    </div>
-                  );
-                })}
+                  })}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <button className="close-button" onClick={handleCloseModal}>
-              ×
-            </button>
-            <h2>{editingProject ? "Edit Project" : "Create a Project"}</h2>
-            <div className="form-group">
-              <label>Project Name</label>
-              <input
-                type="text"
-                name="name"
-                value={newProject.name}
-                onChange={(e) => setNewProject((prev) => ({ ...prev, name: e.target.value }))}
-              />
+        {isModalOpen && (
+          <div className="modal-overlay">
+            <div className="modal">
+              <button className="close-button" onClick={handleCloseModal}>
+                ×
+              </button>
+              <h2>{editingProject ? "Edit Project" : "Create a Project"}</h2>
+              <div className="form-group">
+                <label>Project Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={newProject.name}
+                  onChange={(e) => setNewProject((prev) => ({ ...prev, name: e.target.value }))}
+                />
+              </div>
+              <div className="form-group">
+                <label>Description</label>
+                <textarea
+                  name="description"
+                  value={newProject.description}
+                  onChange={(e) => setNewProject((prev) => ({ ...prev, description: e.target.value }))}
+                />
+              </div>
+              <div className="form-group">
+                <label>Category</label>
+                <select
+                  name="category"
+                  value={newProject.category}
+                  onChange={(e) => setNewProject((prev) => ({ ...prev, category: e.target.value }))}
+                >
+                  <option value="">Select a category</option>
+                  {categories.map((category, index) => (
+                    <option key={index} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Deadline</label>
+                <input
+                  type="date"
+                  name="deadline"
+                  value={newProject.deadline}
+                  onChange={(e) => setNewProject((prev) => ({ ...prev, deadline: e.target.value }))}
+                />
+              </div>
+              <button className="create-project" onClick={handleSaveProject}>
+                {editingProject ? "Save Changes" : "Create Project"}
+              </button>
             </div>
-            <div className="form-group">
-              <label>Description</label>
-              <textarea
-                name="description"
-                value={newProject.description}
-                onChange={(e) => setNewProject((prev) => ({ ...prev, description: e.target.value }))}
-              />
-            </div>
-            <div className="form-group">
-              <label>Category</label>
-              <select
-                name="category"
-                value={newProject.category}
-                onChange={(e) => setNewProject((prev) => ({ ...prev, category: e.target.value }))}
-              >
-                <option value="">Select a category</option>
-                {categories.map((category, index) => (
-                  <option key={index} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="form-group">
-              <label>Deadline</label>
-              <input
-                type="date"
-                name="deadline"
-                value={newProject.deadline}
-                onChange={(e) => setNewProject((prev) => ({ ...prev, deadline: e.target.value }))}
-              />
-            </div>
-            <button className="create-project" onClick={handleSaveProject}>
-              {editingProject ? "Save Changes" : "Create Project"}
-            </button>
           </div>
-        </div>
-      )}
-    </div>
-  );
+        )}
+      </div>
+      );
 };
 
-export default Dashboard;
+      export default Dashboard;

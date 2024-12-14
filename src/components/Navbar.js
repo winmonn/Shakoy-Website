@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import '../styles/Navbar.css';
 
 const Navbar = () => {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, logout, loading } = useAuth(); // Include loading state
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   // Toggles the dropdown visibility
   const toggleDropdown = () => {
@@ -36,17 +36,23 @@ const Navbar = () => {
   const defaultProfileImage = require('../images/profile-icon.png');
   const profilePhoto = user?.profilePhoto || defaultProfileImage;
 
+  // Show a placeholder or loading state while authentication is resolving
+  if (loading) {
+    return <div>Loading Navbar...</div>;
+  }
+
   return (
     <nav className="navbar">
       {/* Logo on the left */}
-      <div className="logo" onClick={() => navigate('/dashboard')}>
+      <div className="logo" onClick={() => navigate(isAuthenticated ? '/dashboard' : '/')}>
         <img
           src={require('../images/ShakoyLogo.png')}
           alt="Shakoy Logo"
           className="logo-image"
-          style={{ cursor: 'pointer' }} // Add cursor pointer to indicate clickable
+          style={{ cursor: 'pointer' }}
         />
       </div>
+
       {/* Links or actions on the right */}
       <div className="nav-links">
         {isAuthenticated ? (
@@ -83,8 +89,8 @@ const Navbar = () => {
           </>
         ) : (
           <>
-            <Link to="/signup">Sign Up</Link>
-            <Link to="/login">Log In</Link>
+            <Link to="/signup" className="nav-link">Sign Up</Link>
+            <Link to="/login" className="nav-link">Log In</Link>
           </>
         )}
       </div>

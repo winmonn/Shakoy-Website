@@ -19,7 +19,7 @@
 
 .dashboard-header h1
 {
-  font-size: 2.5rem;
+  font-size: 1.8rem;
   color: #734a48;
   /* Dark brown */
   font-family: 'Brush Script MT', cursive;
@@ -186,7 +186,7 @@
   color: #fff;
 }
 
-.project-card .status.overdue
+.project-card .status.late
 {
   background-color: #dc3545;
   /* Red for overdue */
@@ -295,14 +295,31 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.day-number.highlight
-{
+.day-number.highlight-red {
+  background-color: red;
+  color: #fff;
+  font-weight: bold;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.day-number.highlight-yellow {
   background-color: #ffc107;
   color: #fff;
   font-weight: bold;
   border-radius: 50%;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
+
+
+.day-number.highlight-green {
+  background-color: green;
+  color: #fff;
+  font-weight: bold;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
 
 .day-number:hover
 {
@@ -538,12 +555,13 @@
   color: #fff;
   border: none;
   border-radius: 50%;
-  width: 35px;
-  height: 35px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 30px;
+  height: 30px;
+  font-size: 1rem;  
 }
 
 .add-category:hover {
@@ -596,3 +614,28 @@
   flex: 1;
   padding: 20px;
 }
+
+/* Projects Section Responsiveness */
+@media (max-width: 768px) {
+  .projects-body {
+    max-height: 300px; /* Reduce max height for projects on smaller screens */
+  }
+
+  .dashboard-header h1 {
+    font-size: 2rem; /* Reduce header size for tablets */
+  }
+}
+
+/* Calendar Responsiveness */
+@media (max-width: 768px) {
+  .calendar-grid {
+    grid-template-columns: repeat(4, 1fr); /* Fewer columns for tablets */
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-grid {
+    grid-template-columns: repeat(3, 1fr); /* Fewer columns for phones */
+  }
+}
+
