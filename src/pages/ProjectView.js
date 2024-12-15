@@ -176,7 +176,7 @@ const ProjectView = () => {
         today.getMonth() === date.month &&
         today.getDate() === day;
   
-      const isDeadline = tasks.some((task) => {
+      const dayTasks = tasks.filter((task) => {
         const taskDeadline = new Date(task.deadline);
         return (
           taskDeadline.getFullYear() === date.year &&
@@ -185,24 +185,29 @@ const ProjectView = () => {
         );
       });
   
-      const isOverdue = tasks.some((task) => {
-        const taskDeadline = new Date(task.deadline);
-        return (
-          taskDeadline.getFullYear() === date.year &&
-          taskDeadline.getMonth() === date.month &&
-          taskDeadline.getDate() === day &&
-          taskDeadline < today &&
-          task.status !== "Completed"
-        );
-      });
+      const isCompleted = dayTasks.some((task) => task.status === "Completed");
+      const isInProgress = dayTasks.some(
+        (task) =>
+          task.status === "In Progress" && new Date(task.deadline) >= today
+      );
+      const isOverdue = dayTasks.some(
+        (task) =>
+          task.status !== "Completed" &&
+          new Date(task.deadline) < today
+      );
   
-      const highlightClass = isToday
-        ? "current-date"
-        : isDeadline
-        ? isOverdue
-          ? "overdue"
-          : "highlight"
-        : "";
+      let highlightClass = "";
+      if (isCompleted) {
+        highlightClass = "completed";
+      } else if (isOverdue) {
+        highlightClass = "overdue";
+      } else if (isInProgress) {
+        highlightClass = "in-progress";
+      }
+  
+      if (isToday) {
+        highlightClass += " current-date";
+      }
   
       return (
         <div key={day} className={`day-number ${highlightClass}`}>
@@ -211,7 +216,6 @@ const ProjectView = () => {
       );
     });
   };
-  
   
 
   return (
@@ -282,6 +286,7 @@ const ProjectView = () => {
                 onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
               />
             </div>
+            
             <div className="form-group">
               <label htmlFor="task-deadline">Deadline</label>
               <DatePicker

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from "./pages/Dashboard";
 import Signup from "./pages/Signup";
 import Settings from "./pages/Settings";
@@ -86,6 +87,7 @@ function App() {
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/signup" element={<Signup />} />
 
           {/* Private Routes */}

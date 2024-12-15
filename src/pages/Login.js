@@ -64,7 +64,13 @@ const Login = () => {
           />
           {error && <p className="error-message">{error}</p>}
           <div className="forgot-password">
-            <a href="/forgot-password">Forgot Password?</a>
+            {/* Updated Forgot Password Section */}
+            <p
+              style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+              onClick={() => navigate('/forgot-password')}
+            >
+              Forgot Password?
+            </p>
           </div>
           <button type="submit" className="login-button">
             Login

@@ -245,17 +245,27 @@
   color: #5b3837;
 }
 
-.calendar-grid .day-number.highlight {
-  background-color: green;
+.calendar-grid .day-number.in-progress {
+  background-color: #ffc107;
+  min-width: 20px;
   color: #fff;
   font-weight: bold;
   border-radius: 50%;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
-
 .calendar-grid .day-number.overdue {
   background-color: red;
+  min-width: 20px;
+  color: #fff;
+  font-weight: bold;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.calendar-grid .day-number.completed {
+  background-color: green;
+  min-width: 20px;
   color: #fff;
   font-weight: bold;
   border-radius: 50%;
@@ -264,8 +274,11 @@
 
 .calendar-grid .day-number.current-date {
   background-color: #fff;
+  min-width: 20px;
   color: black;
   font-weight: bold;
   border-radius: 50%;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
+
+

@@ -128,6 +128,43 @@ const Dashboard = () => {
     }
   };
 
+  // Edit category
+const handleEditCategory = (index, oldCategoryName) => {
+  const newCategoryName = prompt("Edit category name:", oldCategoryName);
+  if (newCategoryName && newCategoryName.trim() !== "") {
+    setCategories((prev) => {
+      const updatedCategories = [...prev];
+      updatedCategories[index] = newCategoryName.trim();
+      return updatedCategories;
+    });
+
+    // Update projects associated with the edited category
+    setProjects((prev) =>
+      prev.map((project) =>
+        project.category === oldCategoryName
+          ? { ...project, category: newCategoryName.trim() }
+          : project
+      )
+    );
+  }
+};
+
+// Delete category
+const handleDeleteCategory = (index) => {
+  const confirmed = window.confirm("Are you sure you want to delete this category?");
+  if (confirmed) {
+    const categoryToDelete = categories[index];
+    setCategories((prev) => prev.filter((_, i) => i !== index));
+
+    // Remove the category from associated projects
+    setProjects((prev) =>
+      prev.map((project) =>
+        project.category === categoryToDelete ? { ...project, category: "" } : project
+      )
+    );
+  }
+};
+
   const handleMonthChange = (direction) => {
     setDate((prev) => {
       let newMonth = prev.month + direction;
@@ -162,7 +199,7 @@ const Dashboard = () => {
       <Navbar />
 
       <div className="dashboard-container">
-        <aside className="sidebar">
+      <aside className="sidebar">
           <div className="sidebar-header">
             <h2>Categories</h2>
             <button className="add-category" onClick={handleAddCategory}>
@@ -172,12 +209,27 @@ const Dashboard = () => {
           <ul>
             {categories.length > 0 ? (
               categories.map((category, index) => (
-                <li
-                  key={index}
-                  className={`category-item ${selectedCategory === category ? "active" : ""}`}
-                  onClick={() => setSelectedCategory(category)}
-                >
-                  {category}
+                <li key={index} className="category-item">
+                  <span
+                    className={`category-name ${selectedCategory === category ? "active" : ""}`}
+                    onClick={() => setSelectedCategory(category)}
+                  >
+                    {category}
+                  </span>
+                  <div className="category-actions">
+                    <button
+                      className="edit-category"
+                      onClick={() => handleEditCategory(index, category)}
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      className="delete-category"
+                      onClick={() => handleDeleteCategory(index)}
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
                 </li>
               ))
             ) : (
@@ -185,7 +237,6 @@ const Dashboard = () => {
             )}
           </ul>
         </aside>
-
         <div className="dashboard-main">
           <header className="dashboard-header">
             <h1>Making Task Management a Piece of Shakoy</h1>

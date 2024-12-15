@@ -43,7 +43,7 @@
 
 .nav-links a {
   font-size: 20px; /* Adjust font size for readability */
-  color: #783431; /* Darker brown for links */
+  color: black; /* Darker brown for links */
   font-weight: 550; /* Medium font weight */
   text-decoration: none; /* Remove underline */
   padding: 5px 15px; /* Add some padding for better spacing */
@@ -52,8 +52,7 @@
 }
 
 .nav-links a:hover {
-  color: #b08968; /* Slightly lighter brown for hover effect */
-  background-color: #e7d4b5;
+  color: white;
   text-decoration: none; /* Optional: underline on hover */
 }
 
@@ -79,6 +78,7 @@
   margin-right: 10px;
 }
 
+
 /* Profile Dropdown Section */
 .profile-dropdown {
   position: relative;
@@ -88,11 +88,10 @@
 
 /* Profile Image */
 .profile-image {
-  width: 4em; /* Adjust size of the profile image */
-  height: 4em; /* Ensure it's square */
+  width: 70px;
+  height: 70px;
   border-radius: 50%; /* Make it circular */
   cursor: pointer; /* Indicate it's clickable */
-  /* border: 2px solid #783431; Optional: Add a border for styling */
   transition: border-color 0.3s ease, transform 0.3s ease;
 }
 
@@ -100,7 +99,6 @@
   border-color: #b08968; /* Change border color on hover */
   transform: scale(1.1); /* Slight zoom effect */
 }
-
 
 /* Dropdown Menu */
 .dropdown-menu {
@@ -114,6 +112,7 @@
   z-index: 1000;
   width: 150px; /* Fixed width for consistent styling */
   border: 1px solid black;
+  color: black;
 }
 
 /* Dropdown Items */
@@ -121,7 +120,7 @@
   display: block;
   padding: 5px 15px; /* Match padding with nav-links a */
   text-decoration: none; /* Remove underline */
-  color: #783431; /* Match color with nav-links a */
+  color: black; /* Match color with nav-links a */
   font-size: 20px; /* Match font size with nav-links a */
   font-weight: 550; /* Match font weight with nav-links a */
   font-family: 'Itim', sans-serif; /* Match font family */
@@ -130,7 +129,6 @@
   transition: color 0.3s ease; /* Smooth transition for hover effect */
   border-bottom: 1px solid black;
 }
-
 .dropdown-item:last-child {
   border-bottom: none;
 }
@@ -172,4 +170,63 @@
   .logo-image {
     height: 40px; /* Adjust logo size for smaller screens */
   }
+}
+
+.notification-icon {
+  position: relative;
+  margin-right: 15px;
+  cursor: pointer;
+}
+
+.bell-icon {
+  font-size: 45px;
+  color: black;
+  border: 2px solid black;
+  padding: 10px;
+  background-color: #e7d4b5;
+  border-radius: 50px;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.bell-icon:hover {
+  border-color: black; /* Change border color on hover */
+  transform: scale(1.1); /* Slight zoom effect */
+}
+
+.notifications-dropdown {
+  position: relative;
+  margin-right: 15px;
+  cursor: pointer;
+}
+
+.notifications-menu {
+  position: absolute;
+  right: 0;
+  top: 30px;
+  background: #e7d4b5;
+  border: 1px solid black;
+  box-shadow: 5px 10px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  padding: 10px;
+  width: 250px;
+  z-index: 10;
+  margin-top: 43px;
+}
+
+.notifications-menu h4 {
+  margin: 0 0 10px;
+  font-size: 1em;
+  color: #333;
+}
+
+.notification-item {
+  margin: 5px 0;
+  padding: 5px 10px;
+  font-size: 0.9em;
+  color: #555;
+  cursor: pointer;
+}
+
+.notification-item:hover {
+  background: #f0f0f0;
 }

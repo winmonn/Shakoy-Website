@@ -1,28 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { FaBell } from "react-icons/fa";
 import '../styles/Navbar.css';
 
 const Navbar = () => {
   const { isAuthenticated, user, logout, loading } = useAuth(); // Include loading state
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false); // For notifications dropdown
+  const [notifications, setNotifications] = useState([
+    "Your task is due tomorrow",
+    "New comment on your project",
+    "Project deadline updated"
+  ]); // Example notifications
   const navigate = useNavigate();
 
-  // Toggles the dropdown visibility
-  const toggleDropdown = () => {
+  // Toggles the profile dropdown visibility
+  const toggleProfileDropdown = () => {
     setIsDropdownOpen((prevState) => !prevState);
+    setIsNotificationsOpen(false); // Close notifications dropdown if open
   };
 
-  // Closes the dropdown
-  const closeDropdown = () => {
-    setIsDropdownOpen(false);
+  // Toggles the notifications dropdown visibility
+  const toggleNotificationsDropdown = () => {
+    setIsNotificationsOpen((prevState) => !prevState);
+    setIsDropdownOpen(false); // Close profile dropdown if open
   };
 
-  // Close dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (!event.target.closest('.profile-dropdown')) {
+      if (!event.target.closest('.profile-dropdown') && !event.target.closest('.notifications-dropdown')) {
         setIsDropdownOpen(false);
+        setIsNotificationsOpen(false);
       }
     };
 
@@ -57,6 +67,29 @@ const Navbar = () => {
       <div className="nav-links">
         {isAuthenticated ? (
           <>
+            {/* Notification Icon */}
+            <div className="notifications-dropdown">
+              <FaBell
+                className="bell-icon"
+                title="Notifications"
+                onClick={toggleNotificationsDropdown}
+              />
+              {isNotificationsOpen && (
+                <div className="dropdown-menu notifications-menu">
+                  <h4>Notifications</h4>
+                  {notifications.length > 0 ? (
+                    notifications.map((notification, index) => (
+                      <p key={index} className="notification-item">
+                        {notification}
+                      </p>
+                    ))
+                  ) : (
+                    <p className="notification-item">No notifications</p>
+                  )}
+                </div>
+              )}
+            </div>
+
             {/* Profile Dropdown */}
             <div className="profile-dropdown">
               <img
@@ -64,20 +97,20 @@ const Navbar = () => {
                 alt="Profile"
                 className="profile-image"
                 title="Profile"
-                onClick={toggleDropdown}
+                onClick={toggleProfileDropdown}
               />
 
               {/* Dropdown Menu */}
               {isDropdownOpen && (
-                <div className="dropdown-menu">
-                  <Link to="/settings" className="dropdown-item" onClick={closeDropdown}>
+                <div className="dropdown-menu profile-menu">
+                  <Link to="/settings" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>
                     Settings
                   </Link>
                   <span
                     className="dropdown-item"
                     onClick={() => {
                       logout(); // Logs the user out
-                      closeDropdown(); // Closes the dropdown
+                      setIsDropdownOpen(false); // Closes the dropdown
                       navigate('/'); // Redirect to home page
                     }}
                   >
