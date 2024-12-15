@@ -9,23 +9,34 @@ const Signup = () => {
 
   const [formData, setFormData] = useState({
     email: '',
-    username: '',
+    name: '',
     password: '',
   });
+
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Save user data (email, username, password)
-    signup(formData);
-    alert('Account created successfully! You can now log in.');
-    navigate('/login'); // Redirect to login page
-  };
+    try {
+        const isSuccess = await signup(formData); 
+        if (isSuccess) {
+            alert('Account created successfully! You can now log in.');
+            navigate('/login'); 
+        } else {
+            setError('Signup failed. Please try again.');
+        }
+    } catch (err) {
+        console.error('Signup error:', err);
+        setError('Something went wrong. Please try again later.');
+    }
+};
+
 
   return (
     <div className="signup-container">
@@ -65,6 +76,7 @@ const Signup = () => {
             className="input-field"
             required
           />
+          {error && <p className="error-message">{error}</p>}
           <button type="submit" className="signup-button">
             Create Account
           </button>

@@ -1,84 +1,48 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
+import { login as loginAPI, signup as signupAPI } from '../api/api'; 
 
-// Create AuthContext
 const AuthContext = createContext();
 
-// Custom Hook for easier access
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+    return useContext(AuthContext);
+};
 
-// AuthProvider Component
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // Add a loading state
+    const [user, setUser] = useState(null);
 
-  // Load user data from localStorage on initialization
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    const storedAuth = localStorage.getItem('isAuthenticated');
+    const login = async (credentials) => {
+        try {
+            const { data } = await loginAPI(credentials); // Call the backend login endpoint
+            localStorage.setItem('token', data.token); // Store JWT in localStorage
+            setUser(data.user); // Set user data if included in the response
+            return true; // Return success
+        } catch (error) {
+            console.error('Login failed:', error.response?.data?.message || error.message);
+            return false; // Return failure
+        }
+    };
 
-    try {
-      const parsedUser = JSON.parse(storedUser);
-
-      if (storedAuth === 'true' && parsedUser) {
-        setUser(parsedUser);
-        setIsAuthenticated(true);
-      } else {
-        localStorage.removeItem('user');
-        localStorage.removeItem('isAuthenticated');
-        setUser(null);
-        setIsAuthenticated(false);
+    const signup = async (userDetails) => {
+      try {
+          const response = await signupAPI(userDetails); 
+          console.log('Signup Response:', response.data); 
+          return true; 
+      } catch (error) {
+          console.error('Signup Error:', error.response?.data || error.message); 
+          return false; 
       }
-    } catch (error) {
-      console.error('Error parsing user data:', error);
-      localStorage.removeItem('user');
-      localStorage.removeItem('isAuthenticated');
-      setUser(null);
-      setIsAuthenticated(false);
-    }
-
-    setLoading(false); // Set loading to false after initialization
-  }, []);
-
-  // Login function
-  const login = ({ username, password }) => {
-    const storedUser = JSON.parse(localStorage.getItem('user'));
-    if (storedUser && storedUser.username === username && storedUser.password === password) {
-      setUser(storedUser);
-      setIsAuthenticated(true);
-      return true;
-    }
-
-    setIsAuthenticated(false); // Ensure unauthenticated state is clear
-    return false;
   };
+  
+  
 
-  // Signup function
-  const signup = (userData) => {
-    setUser(userData);
-    setIsAuthenticated(true);
-    localStorage.setItem('user', JSON.stringify(userData));
-    localStorage.setItem('isAuthenticated', 'true');
-  };
+    const logout = () => {
+        localStorage.removeItem('token'); // Clear JWT from localStorage
+        setUser(null); // Reset user state
+    };
 
-  // Logout function
-  const logout = () => {
-    setIsAuthenticated(false);
-    setUser(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('isAuthenticated');
-  };
-
-  // Update profile photo function
-  const updateProfilePhoto = (profilePhoto) => {
-    const updatedUser = { ...user, profilePhoto };
-    setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser)); // Update localStorage
-  };
-
-  return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, signup, logout, loading, updateProfilePhoto }}>
-      {children}
-    </AuthContext.Provider>
-  );
+    return (
+        <AuthContext.Provider value={{ user, login, signup, logout }}>
+            {children}
+        </AuthContext.Provider>
+    );
 };

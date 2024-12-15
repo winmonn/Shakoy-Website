@@ -20,9 +20,9 @@ export const updateTask = (id, updates) => API.put(`/tasks/${id}`, updates);
 export const deleteTask = (id) => API.delete(`/tasks/${id}`);
 
 // User-related endpoints
-export const signup = (userDetails) => API.post('/users', userDetails);
-export const login = (credentials) => API.post('/login', credentials);
-export const fetchUsers = () => API.get('/users'); // Admin-only route
+export const signup = (userDetails) => API.post('/users/signup', userDetails);
+export const login = (credentials) => API.post('/users/login', credentials);
+export const fetchUsers = () => API.get('/users'); 
 export const updateUser = (id, updates) => API.put(`/users/${id}`, updates);
 export const deleteUser = (id) => API.delete(`/users/${id}`);
 

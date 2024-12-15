@@ -41,6 +41,8 @@ router.post('/login', async (req, res) => {
 router.post('/signup', async (req, res) => {
     const { name, email, password } = req.body;
 
+    console.log('Signup Request Body:', req.body);
+
     if (!name || !email || !password) {
         return res.status(400).json({ message: 'Name, email, and password are required' });
     }
@@ -66,9 +68,14 @@ router.post('/signup', async (req, res) => {
             { expiresIn: '1h' }
         );
 
-        res.status(201).json({ message: 'User registered successfully', token, user });
+        console.log('Signup successful, returning token'); // Log success
+        res.status(201).json({
+            message: 'User registered successfully',
+            token,
+            user: result.user,
+        });
     } catch (err) {
-        console.error(err);
+        console.error('Error in /signup route:', err.message); // Log any route-level errors
         res.status(500).json({ message: 'Error registering user', error: err.message });
     }
 });
