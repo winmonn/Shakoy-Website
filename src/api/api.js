@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Configure API instance
-const API = axios.create({ baseURL: 'http://localhost:3000' });
+const API = axios.create({ baseURL: 'http://localhost:5000' });
 
 // Task-related endpoints
 export const fetchTasks = () => API.get('/tasks');
