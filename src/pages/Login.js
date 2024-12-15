@@ -6,14 +6,13 @@ import '../styles/Login.css';
 const Login = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { login } = useAuth(); // Use the login function from AuthContext
+    const { login } = useAuth(); 
     const [credentials, setCredentials] = useState({
-        email: '', // Backend expects `email` instead of `username`
+        email: '', 
         password: '',
     });
     const [error, setError] = useState('');
 
-    // Get the page the user was trying to access, default to "/dashboard"
     const from = location.state?.from?.pathname || '/dashboard';
 
     const handleChange = (e) => {
@@ -23,11 +22,12 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log('Form Data Sent to Login:', credentials);
 
         try {
-            const isSuccess = await login(credentials); // Await the login result
+            const isSuccess = await login(credentials); 
             if (isSuccess) {
-                navigate(from, { replace: true }); // Redirect to the intended page or dashboard
+                navigate(from, { replace: true }); 
             } else {
                 setError('Invalid email or password.');
             }
@@ -49,7 +49,7 @@ const Login = () => {
                 <h2>Login</h2>
                 <form onSubmit={handleSubmit}>
                     <input
-                        type="email" // Change to `email` to match backend
+                        type="email" 
                         placeholder="Email"
                         name="email"
                         value={credentials.email}

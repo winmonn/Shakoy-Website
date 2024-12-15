@@ -9,7 +9,7 @@ const Signup = () => {
 
   const [formData, setFormData] = useState({
     email: '',
-    name: '',
+    username: '',
     password: '',
   });
 
@@ -23,8 +23,7 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log('Form Data:', formData);
-
+    console.log('Form Data Sent to Signup:', formData); 
     try {
         const isSuccess = await signup(formData); 
         if (isSuccess) {
@@ -34,10 +33,12 @@ const Signup = () => {
             setError('Signup failed. Please try again.');
         }
     } catch (err) {
-        console.error('Signup error:', err);
+        console.error('Signup Error:', err);
         setError('Something went wrong. Please try again later.');
     }
 };
+
+
 
 
   return (
@@ -51,38 +52,38 @@ const Signup = () => {
       <div className="signup-form">
         <h2>Sign Up</h2>
         <form onSubmit={handleSubmit}>
-          <input
-            type="email"
-            placeholder="Email address"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="input-field"
-            required
-          />
-          <input
-            type="text"
-            placeholder="Username"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            className="input-field"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            className="input-field"
-            required
-          />
-          {error && <p className="error-message">{error}</p>}
-          <button type="submit" className="signup-button">
-            Create Account
-          </button>
-        </form>
+    <input
+        type="email"
+        placeholder="Email address"
+        name="email"
+        value={formData.email}
+        onChange={handleChange}
+        className="input-field"
+        required
+    />
+    <input
+        type="text"
+        placeholder="Username"
+        name="username"
+        value={formData.username} // Update to 'username'
+        onChange={handleChange}
+        className="input-field"
+        required
+    />
+    <input
+        type="password"
+        placeholder="Password"
+        name="password"
+        value={formData.password}
+        onChange={handleChange}
+        className="input-field"
+        required
+    />
+    {error && <p className="error-message">{error}</p>}
+    <button type="submit" className="signup-button">
+        Create Account
+    </button>
+</form>
 
         {/* Login Prompt */}
         <div className="login-prompt">

@@ -9,33 +9,38 @@ const router = express.Router();
 
 // User login
 router.post('/login', async (req, res) => {
+    console.log('Login Request Body:', req.body); 
+
     const { email, password } = req.body;
 
-    if (!email || !password) {
-        return res.status(400).json({ message: 'Email and password are required' });
-    }
-
     try {
-        const result = await verifyUser(email, password);
+        const [user] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
 
-        if (!result.success) {
-            return res.status(401).json({ message: result.message });
+        if (user.length === 0) {
+            console.log('No user found for email:', email);
+            return res.status(400).json({ message: 'Invalid email or password' });
         }
 
-        const user = result.user;
+        const validPassword = await bcrypt.compare(password, user[0].password);
 
-        const token = jwt.sign(
-            { id: user.id, email: user.email },
-            process.env.JWT_SECRET,
-            { expiresIn: '1h' }
-        );
+        if (!validPassword) {
+            console.log('Password mismatch for email:', email);
+            return res.status(400).json({ message: 'Invalid email or password' });
+        }
 
-        res.json({ message: 'Login successful', token });
+        const token = jwt.sign({ userId: user[0].id }, process.env.JWT_SECRET, {
+            expiresIn: '1h',
+        });
+
+        console.log('Login successful for email:', email);
+        res.status(200).json({ message: 'Login successful', token });
+
     } catch (err) {
-        console.error(err);
+        console.error('Error during login:', err.message);
         res.status(500).json({ message: 'Error during login', error: err.message });
     }
 });
+
 
 // User signup
 router.post('/signup', async (req, res) => {

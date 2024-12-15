@@ -12,32 +12,38 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (credentials) => {
         try {
-            const { data } = await loginAPI(credentials); // Call the backend login endpoint
-            localStorage.setItem('token', data.token); // Store JWT in localStorage
-            setUser(data.user); // Set user data if included in the response
-            return true; // Return success
+            console.log('Sending Login Request:', credentials);
+            const { data } = await loginAPI(credentials); 
+            console.log('Login API Response:', data);
+    
+            localStorage.setItem('token', data.token); 
+            setUser(data.user); 
+            return true;
         } catch (error) {
             console.error('Login failed:', error.response?.data?.message || error.message);
-            return false; // Return failure
+            return false;
         }
     };
+    
+    
 
     const signup = async (userDetails) => {
-      try {
-          const response = await signupAPI(userDetails); 
-          console.log('Signup Response:', response.data); 
-          return true; 
-      } catch (error) {
-          console.error('Signup Error:', error.response?.data || error.message); 
-          return false; 
-      }
-  };
+        try {
+            const response = await signupAPI(userDetails); 
+            console.log('Signup API Response:', response); 
+            return true; 
+        } catch (error) {
+            console.error('Signup failed:', error.response?.data || error.message); 
+            return false; 
+        }
+    };
+    
   
   
 
     const logout = () => {
-        localStorage.removeItem('token'); // Clear JWT from localStorage
-        setUser(null); // Reset user state
+        localStorage.removeItem('token'); 
+        setUser(null); 
     };
 
     return (
