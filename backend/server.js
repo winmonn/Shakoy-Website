@@ -9,7 +9,7 @@ const taskRoutes = require('./routes/tasks');
 const categoryRoutes = require('./routes/categories'); 
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors()); 
@@ -29,6 +29,25 @@ app.get('/test-db', async (req, res) => {
 app.use('/users', userRoutes);       
 app.use('/tasks', taskRoutes);       
 app.use('/categories', categoryRoutes); 
+
+// API route to create a user
+app.post('/users/register', async (req, res) => {
+    const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+        return res.status(400).json({ error: 'All fields are required.' });
+    }
+
+    try {
+        const query = 'INSERT INTO users (username, email, password) VALUES (?, ?, ?)';
+        const [result] = await pool.execute(query, [username, email, password]);
+        res.status(201).json({ message: 'User registered successfully!', userId: result.insertId });
+    } catch (err) {
+        console.error('Error creating user:', err);
+        res.status(500).json({ error: 'Failed to register user.' });
+    }
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack); 
