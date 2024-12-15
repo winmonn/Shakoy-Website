@@ -2,7 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { verifyUser, createUser, getUserById, getAllUsers, updateUser, deleteUser } = require('../models/user');
-const { authenticateJWT } = require('../middleware/auth'); 
+const { verifyToken, isAdmin } = require('../middlewares/auth');
 require('dotenv').config();
 
 const router = express.Router();
@@ -74,7 +74,7 @@ router.post('/signup', async (req, res) => {
 });
 
 // Fetch all users (admin only)
-router.get('/', authenticateJWT, async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
     try {
         const users = await getAllUsers();
 
@@ -86,7 +86,7 @@ router.get('/', authenticateJWT, async (req, res) => {
 });
 
 // Fetch a user by ID
-router.get('/:id', authenticateJWT, async (req, res) => {
+router.get('/:id', verifyToken, async (req, res) => {
     const userId = req.params.id;
 
     try {
@@ -104,7 +104,7 @@ router.get('/:id', authenticateJWT, async (req, res) => {
 });
 
 // Update user details
-router.put('/:id', authenticateJWT, async (req, res) => {
+router.put('/:id', verifyToken, async (req, res) => {
     const userId = req.params.id;
     const updates = req.body;
 
@@ -131,7 +131,7 @@ router.put('/:id', authenticateJWT, async (req, res) => {
 });
 
 // Delete a user by ID
-router.delete('/:id', authenticateJWT, async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
     const userId = req.params.id;
 
     try {

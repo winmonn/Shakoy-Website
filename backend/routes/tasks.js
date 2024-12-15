@@ -1,11 +1,11 @@
 const express = require('express');
-const { authenticateJWT } = require('../middleware/auth'); // Replace with your auth middleware
+const { verifyToken, isAdmin } = require('../middlewares/auth');
 const pool = require('../models/db'); // Database connection
 
 const router = express.Router();
 
 // Fetch all tasks with pagination
-router.get('/', authenticateJWT, async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const offset = parseInt(req.query.offset) || 0;
 
@@ -19,7 +19,7 @@ router.get('/', authenticateJWT, async (req, res) => {
 });
 
 // Fetch a single task by ID
-router.get('/:id', authenticateJWT, async (req, res) => {
+router.get('/:id', verifyToken, async (req, res) => {
     const taskId = req.params.id;
 
     try {
@@ -35,7 +35,7 @@ router.get('/:id', authenticateJWT, async (req, res) => {
 });
 
 // Create a new task
-router.post('/', authenticateJWT, async (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
     const { title, description, status, due_date, user_id, category_id } = req.body;
 
     if (!title || !user_id || !category_id) {
@@ -55,7 +55,7 @@ router.post('/', authenticateJWT, async (req, res) => {
 });
 
 // Update a task by ID
-router.put('/:id', authenticateJWT, async (req, res) => {
+router.put('/:id', verifyToken, async (req, res) => {
     const taskId = req.params.id;
     const { title, description, status, due_date, category_id } = req.body;
 
@@ -87,7 +87,7 @@ router.put('/:id', authenticateJWT, async (req, res) => {
 });
 
 // Delete a task by ID
-router.delete('/:id', authenticateJWT, async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
     const taskId = req.params.id;
 
     try {

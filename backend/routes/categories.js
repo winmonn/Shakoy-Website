@@ -1,11 +1,11 @@
 const express = require('express');
-const { authenticateJWT } = require('../middleware/auth'); // Authentication middleware
+const { verifyToken, isAdmin } = require('../middlewares/auth');
 const pool = require('../models/db'); // Database connection
 
 const router = express.Router();
 
 // Fetch all categories
-router.get('/', authenticateJWT, async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
     try {
         const [categories] = await pool.execute('SELECT * FROM categories');
         res.status(200).json(categories);
@@ -16,7 +16,7 @@ router.get('/', authenticateJWT, async (req, res) => {
 });
 
 // Create a new category
-router.post('/', authenticateJWT, async (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
     const { name, description, user_id } = req.body;
 
     if (!name || !user_id) {
@@ -36,7 +36,7 @@ router.post('/', authenticateJWT, async (req, res) => {
 });
 
 // Update a category by ID
-router.put('/:id', authenticateJWT, async (req, res) => {
+router.put('/:id', verifyToken, async (req, res) => {
     const categoryId = req.params.id;
     const { name, description } = req.body;
 
@@ -77,7 +77,7 @@ router.put('/:id', authenticateJWT, async (req, res) => {
 });
 
 // Delete a category by ID
-router.delete('/:id', authenticateJWT, async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
     const categoryId = req.params.id;
 
     try {
