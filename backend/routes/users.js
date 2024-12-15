@@ -1,38 +1,52 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const { verifyUser, createUser } = require('../models/user'); 
+const { verifyUser, createUser, getUserById, getAllUsers, updateUser, deleteUser } = require('../models/user');
+const { authenticateJWT } = require('../middleware/auth'); 
 require('dotenv').config();
 
 const router = express.Router();
 
-// Login Endpoint
+// User login
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
-    const result = await verifyUser(email, password);
-
-    if (!result.success) {
-        return res.status(401).send(result.message);
+    if (!email || !password) {
+        return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    const user = result.user;
+    try {
+        const result = await verifyUser(email, password);
 
-    const token = jwt.sign(
-        { id: user.id, email: user.email },
-        process.env.JWT_SECRET,
-        { expiresIn: '1h' }
-    );
+        if (!result.success) {
+            return res.status(401).json({ message: result.message });
+        }
 
-    res.json({ token });
+        const user = result.user;
+
+        const token = jwt.sign(
+            { id: user.id, email: user.email },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+
+        res.json({ message: 'Login successful', token });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error during login', error: err.message });
+    }
 });
 
-// Signup Endpoint
+// User signup
 router.post('/signup', async (req, res) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
         return res.status(400).json({ message: 'Name, email, and password are required' });
+    }
+
+    if (password.length < 8 || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+        return res.status(400).json({ message: 'Password must be at least 8 characters long and include one uppercase letter and one number' });
     }
 
     try {
@@ -56,6 +70,81 @@ router.post('/signup', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Error registering user', error: err.message });
+    }
+});
+
+// Fetch all users (admin only)
+router.get('/', authenticateJWT, async (req, res) => {
+    try {
+        const users = await getAllUsers();
+
+        res.status(200).json(users);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error fetching users', error: err.message });
+    }
+});
+
+// Fetch a user by ID
+router.get('/:id', authenticateJWT, async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        const user = await getUserById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json(user);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error fetching user', error: err.message });
+    }
+});
+
+// Update user details
+router.put('/:id', authenticateJWT, async (req, res) => {
+    const userId = req.params.id;
+    const updates = req.body;
+
+    if (!updates.name && !updates.email && !updates.password) {
+        return res.status(400).json({ message: 'At least one field (name, email, password) is required for update' });
+    }
+
+    try {
+        if (updates.password) {
+            updates.password = await bcrypt.hash(updates.password, 10);
+        }
+
+        const result = await updateUser(userId, updates);
+
+        if (!result.success) {
+            return res.status(404).json({ message: result.message });
+        }
+
+        res.status(200).json({ message: 'User updated successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error updating user', error: err.message });
+    }
+});
+
+// Delete a user by ID
+router.delete('/:id', authenticateJWT, async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        const result = await deleteUser(userId);
+
+        if (!result.success) {
+            return res.status(404).json({ message: result.message });
+        }
+
+        res.status(200).json({ message: 'User deleted successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error deleting user', error: err.message });
     }
 });
 
