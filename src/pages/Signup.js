@@ -23,6 +23,8 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    console.log('Form Data:', formData);
+
     try {
         const isSuccess = await signup(formData); 
         if (isSuccess) {
