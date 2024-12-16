@@ -5,33 +5,40 @@ const router = express.Router();
 
 // Fetch all tasks with pagination - No Token Required
 router.get('/', async (req, res) => {
-    const limit = parseInt(req.query.limit) || 10;
-    const offset = parseInt(req.query.offset) || 0;
+    let limit = parseInt(req.query.limit, 10);
+    let offset = parseInt(req.query.offset, 10);
+
+    // Default values if limit or offset is invalid
+    if (isNaN(limit) || limit <= 0) limit = 10; 
+    if (isNaN(offset) || offset < 0) offset = 0;
 
     try {
         const [tasks] = await pool.execute('SELECT * FROM tasks LIMIT ? OFFSET ?', [limit, offset]);
         res.status(200).json(tasks);
     } catch (err) {
-        console.error(err);
+        console.error('Error fetching tasks:', err.message);
         res.status(500).json({ message: 'Error fetching tasks', error: err.message });
     }
 });
 
 // Fetch a single task by ID - No Token Required
-router.get('/:id', async (req, res) => {
-    const taskId = req.params.id;
+router.get('/', async (req, res) => {
+    const limit = parseInt(req.query.limit) || 10; // Default to 10 if invalid
+    const offset = parseInt(req.query.offset) || 0; // Default to 0 if invalid
 
     try {
-        const [task] = await pool.execute('SELECT * FROM tasks WHERE id = ?', [taskId]);
-        if (task.length === 0) {
-            return res.status(404).json({ message: 'Task not found' });
+        if (isNaN(limit) || isNaN(offset)) {
+            throw new Error("Limit and offset must be valid numbers");
         }
-        res.status(200).json(task[0]);
+
+        const [tasks] = await pool.execute('SELECT * FROM tasks LIMIT ? OFFSET ?', [limit, offset]);
+        res.status(200).json(tasks);
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Error fetching task', error: err.message });
+        console.error('Error fetching tasks:', err.message);
+        res.status(500).json({ message: 'Error fetching tasks', error: err.message });
     }
 });
+
 
 router.post('/', async (req, res) => {
     const { title, description, category, due_date } = req.body;

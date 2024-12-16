@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import Navbar from "./components/Navbar"; // Import Navbar
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -13,7 +14,6 @@ import PrivacySettings from "./pages/PrivacySettings";
 import ProjectView from "./pages/ProjectView";
 
 function App() {
-  // Mock project and task data
   const allProjects = [
     {
       id: 1,
@@ -27,7 +27,7 @@ function App() {
       name: "Networking 2",
       description: "All tasks for CIS 2105 Networking II.",
       status: "In Progress",
-        deadline: "2024-11-30",
+      deadline: "2024-11-30",
     },
   ];
 
@@ -63,7 +63,8 @@ function App() {
       id: 4,
       projectId: 2,
       name: "Trunking",
-      description: "is a networking technique that consolidates multiple links into a single logical link, improving bandwidth and redundancy",
+      description:
+        "is a networking technique that consolidates multiple links into a single logical link, improving bandwidth and redundancy",
       tags: ["Low"],
       status: "In Progress",
       deadline: new Date(),
@@ -82,6 +83,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
+        {/* Universal Navbar */}
+        <Navbar />
+
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
@@ -90,10 +94,10 @@ function App() {
 
           {/* Private Routes */}
           <Route
-            path="/dashboard" 
+            path="/dashboard"
             element={
               // <PrivateRoute>
-                <Dashboard projects={allProjects} />
+              <Dashboard projects={allProjects} />
               // </PrivateRoute>
             }
           />
