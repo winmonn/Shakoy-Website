@@ -44,7 +44,6 @@ const Login = () => {
 
     return (
         <div className="login-container">
-            {/* Logo Section */}
             <div className="logo">
                 <img src={require('../images/ShakoyLogo.png')} alt="Shakoy Logo" />
             </div>
@@ -80,7 +79,6 @@ const Login = () => {
                     </button>
                 </form>
 
-                {/* Sign Up Section */}
                 <div className="signup-prompt">
                     <p>
                         Don’t have an account? <a href="/signup">Sign up</a>
