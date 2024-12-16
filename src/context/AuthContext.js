@@ -40,15 +40,17 @@ export const AuthProvider = ({ children }) => {
         try {
             const { data } = await signupAPI(userDetails); // Call backend signup API
             console.log('Signup API Response:', data);
-
-            // Save token if it exists
-            if (data.token) {
+    
+            // Check if the API returned a success indicator (like a token)
+            if (data && data.token) {
                 localStorage.setItem('token', data.token);
                 setUser({ token: data.token }); // Set user in state
                 console.log('Signup successful, token saved.');
+                return true; // Signup successful
+            } else {
+                console.error('Signup API did not return a token.');
+                return false; // Signup failed
             }
-
-            return true; // Signup successful
         } catch (error) {
             console.error(
                 'Signup failed:',
@@ -57,7 +59,7 @@ export const AuthProvider = ({ children }) => {
             return false; // Signup failed
         }
     };
-
+    
     // Logout function
     const logout = () => {
         localStorage.removeItem('token'); // Clear token

@@ -1,11 +1,10 @@
 const express = require('express');
-const { verifyToken, isAdmin } = require('../middlewares/auth');
 const pool = require('../models/db'); // Database connection
 
 const router = express.Router();
 
-// Fetch all tasks with pagination
-router.get('/', verifyToken, async (req, res) => {
+// Fetch all tasks with pagination - No Token Required
+router.get('/', async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const offset = parseInt(req.query.offset) || 0;
 
@@ -18,8 +17,8 @@ router.get('/', verifyToken, async (req, res) => {
     }
 });
 
-// Fetch a single task by ID
-router.get('/:id', verifyToken, async (req, res) => {
+// Fetch a single task by ID - No Token Required
+router.get('/:id', async (req, res) => {
     const taskId = req.params.id;
 
     try {
@@ -34,28 +33,42 @@ router.get('/:id', verifyToken, async (req, res) => {
     }
 });
 
-// Create a new task
-router.post('/', verifyToken, async (req, res) => {
-    const { title, description, status, due_date, user_id, category_id } = req.body;
+router.post('/', async (req, res) => {
+    const { title, description, category, due_date } = req.body;
 
-    if (!title || !user_id || !category_id) {
-        return res.status(400).json({ message: 'Title, user_id, and category_id are required' });
+    if (!title || !category) {
+        return res.status(400).json({ message: 'Title and category are required' });
     }
 
     try {
+        // Find category_id by category name
+        const [categoryResult] = await pool.execute('SELECT id FROM categories WHERE name = ?', [category]);
+        if (categoryResult.length === 0) {
+            return res.status(400).json({ message: 'Invalid category selected. Please choose a valid category name.' });
+        }
+        const category_id = categoryResult[0].id;
+
+        // Insert the task
+        const status = 'Pending'; // Default status
+        const user_id = 1; // Default user ID, replace if needed
         const [result] = await pool.execute(
             'INSERT INTO tasks (title, description, status, due_date, user_id, category_id) VALUES (?, ?, ?, ?, ?, ?)',
-            [title, description || null, status || 'Pending', due_date || null, user_id, category_id]
+            [title, description || null, status, due_date || null, user_id, category_id]
         );
-        res.status(201).json({ message: 'Task created successfully', taskId: result.insertId });
+
+        res.status(201).json({
+            message: 'Task created successfully',
+            taskId: result.insertId,
+        });
     } catch (err) {
-        console.error(err);
+        console.error('Error creating task:', err);
         res.status(500).json({ message: 'Error creating task', error: err.message });
     }
 });
 
-// Update a task by ID
-router.put('/:id', verifyToken, async (req, res) => {
+
+// Update a task by ID - No Token Required
+router.put('/:id', async (req, res) => {
     const taskId = req.params.id;
     const { title, description, status, due_date, category_id } = req.body;
 
@@ -86,8 +99,8 @@ router.put('/:id', verifyToken, async (req, res) => {
     }
 });
 
-// Delete a task by ID
-router.delete('/:id', verifyToken, async (req, res) => {
+// Delete a task by ID - No Token Required
+router.delete('/:id', async (req, res) => {
     const taskId = req.params.id;
 
     try {

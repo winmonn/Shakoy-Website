@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import "../styles/Dashboard.css";
 import { FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
+import { createCategory, createTask, fetchCategories } from "../api/api";
 
 const months = [
   "January", "February", "March", "April", "May", "June",
@@ -19,10 +20,7 @@ const Dashboard = () => {
     return savedProjects || [];
   });
 
-  const [categories, setCategories] = useState(() => {
-    const savedCategories = JSON.parse(localStorage.getItem("categories"));
-    return savedCategories || [];
-  });
+  const [categories, setCategories] = useState([]);
 
   const [tasks, setTasks] = useState(() => {
     const savedTasks = JSON.parse(localStorage.getItem("tasks"));
@@ -43,19 +41,27 @@ const Dashboard = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   useEffect(() => {
-    localStorage.setItem("projects", JSON.stringify(projects));
-  }, [projects]);
+    const loadCategories = async () => {
+      try {
+        const response = await fetchCategories();
+        setCategories(response.data); // Expecting [{ id, name }]
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    loadCategories();
+  }, []);
 
   useEffect(() => {
-    localStorage.setItem("categories", JSON.stringify(categories));
-  }, [categories]);
+    localStorage.setItem("projects", JSON.stringify(projects));
+  }, [projects]);
 
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
   useEffect(() => {
-    // Update project completion percentage based on tasks
     const updatedProjects = projects.map((project) => {
       const projectTasks = tasks.filter((task) => task.projectId === project.id);
       const completedTasks = projectTasks.filter((task) => task.status === "Completed").length;
@@ -66,10 +72,17 @@ const Dashboard = () => {
     setProjects(updatedProjects);
   }, [tasks]);
 
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {
     const categoryName = prompt("Enter category name:");
     if (categoryName) {
-      setCategories((prev) => [...prev, categoryName]);
+      try {
+        const response = await createCategory({ name: categoryName, user_id: 1 });
+        setCategories((prev) => [...prev, { id: response.data.id, name: categoryName }]);
+        alert("Category added successfully!");
+      } catch (error) {
+        console.error("Error creating category:", error);
+        alert("Failed to add category.");
+      }
     }
   };
 
@@ -95,31 +108,38 @@ const Dashboard = () => {
     setIsModalOpen(false);
   };
 
-  const handleSaveProject = () => {
-    if (!newProject.name || !newProject.description || !newProject.deadline || !newProject.category) {
-      alert("Please fill in all fields before saving the project.");
+  const handleSaveProject = async () => {
+    if (!newProject.name || !newProject.category || !newProject.deadline) {
+      alert("Please fill in all required fields before saving the project.");
       return;
     }
 
-    if (editingProject) {
-      setProjects((prev) =>
-        prev.map((project) => (project.id === editingProject.id ? { ...project, ...newProject } : project))
-      );
-    } else {
+    const taskData = {
+      title: newProject.name,
+      description: newProject.description || "",
+      category: newProject.category, // Send category name directly
+      due_date: newProject.deadline,
+    };
+
+    try {
+      const response = await createTask(taskData);
+      alert("Project saved successfully!");
       setProjects((prev) => [
         ...prev,
         { ...newProject, id: Date.now(), status: "In Progress", completion: 0 },
       ]);
+      handleCloseModal();
+    } catch (error) {
+      console.error("Error saving project:", error.response?.data || error.message);
+      alert("Failed to save project. Please try again.");
     }
-
-    handleCloseModal();
   };
 
   const handleDeleteProject = (projectId) => {
     const confirmed = window.confirm("Are you sure you want to delete this project?");
     if (confirmed) {
       setProjects((prev) => prev.filter((project) => project.id !== projectId));
-      setTasks((prev) => prev.filter((task) => task.projectId !== projectId)); // Remove tasks of the deleted project
+      setTasks((prev) => prev.filter((task) => task.projectId !== projectId));
     }
   };
 
@@ -155,7 +175,6 @@ const Dashboard = () => {
   return (
     <div>
       <Navbar />
-
       <div className="dashboard-container">
         <aside className="sidebar">
           <div className="sidebar-header">
@@ -166,13 +185,13 @@ const Dashboard = () => {
           </div>
           <ul>
             {categories.length > 0 ? (
-              categories.map((category, index) => (
+              categories.map((category) => (
                 <li
-                  key={index}
-                  className={`category-item ${selectedCategory === category ? "active" : ""}`}
-                  onClick={() => setSelectedCategory(category)}
+                  key={category.id}
+                  className={`category-item ${selectedCategory === category.name ? "active" : ""}`}
+                  onClick={() => setSelectedCategory(category.name)}
                 >
-                  {category}
+                  {category.name}
                 </li>
               ))
             ) : (
@@ -185,7 +204,6 @@ const Dashboard = () => {
           <header className="dashboard-header">
             <h1>Making Task Management a Piece of Shakoy</h1>
           </header>
-
           <div className="dashboard-content">
             <div className="projects-list">
               <div className="projects-header">
@@ -197,12 +215,23 @@ const Dashboard = () => {
               <div className="projects-body">
                 {filteredProjects.length > 0 ? (
                   filteredProjects.map((project) => (
-                    <div className={`project-card ${project.status.toLowerCase()}`} key={project.id}>
+                    <div
+                      className={`project-card ${
+                        project.status ? project.status.toLowerCase() : "in-progress"
+                      }`}
+                      key={project.id}
+                    >
                       <div className="project-header">
                         <h3>
                           {project.name}
-                          <span className={`status ${project.status.toLowerCase().replace(" ", "-")}`}>
-                            {project.status}
+                          <span
+                            className={`status ${
+                              project.status
+                                ? project.status.toLowerCase().replace(" ", "-")
+                                : "in-progress"
+                            }`}
+                          >
+                            {project.status || "In Progress"}
                           </span>
                         </h3>
                         <div className="project-actions">
@@ -309,12 +338,13 @@ const Dashboard = () => {
                 onChange={(e) => setNewProject((prev) => ({ ...prev, category: e.target.value }))}
               >
                 <option value="">Select a category</option>
-                {categories.map((category, index) => (
-                  <option key={index} value={category}>
-                    {category}
+                {categories.map((category) => (
+                  <option key={category.id} value={category.name}>
+                    {category.name} {/* Use category.name */}
                   </option>
                 ))}
               </select>
+
             </div>
             <div className="form-group">
               <label>Deadline</label>
