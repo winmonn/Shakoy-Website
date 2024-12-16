@@ -23,12 +23,16 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log('Form Data Sent to Login:', credentials);
-
+    
         try {
-            const isSuccess = await login(credentials); 
+            const isSuccess = await login(credentials);
+            console.log('Login Success Status:', isSuccess); // Log result of login function
+    
             if (isSuccess) {
-                navigate(from, { replace: true }); 
+                console.log('Navigating to:', from); // Log where you are trying to navigate
+                navigate(from, { replace: true });
             } else {
+                console.log('Login failed - Invalid credentials');
                 setError('Invalid email or password.');
             }
         } catch (err) {
@@ -36,6 +40,7 @@ const Login = () => {
             setError('Something went wrong. Please try again later.');
         }
     };
+    
 
     return (
         <div className="login-container">

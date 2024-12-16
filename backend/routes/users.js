@@ -1,5 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const pool = require('../models/db'); 
 const bcrypt = require('bcrypt');
 const { verifyUser, createUser, getUserById, getAllUsers, updateUser, deleteUser } = require('../models/user');
 const { verifyToken, isAdmin } = require('../middlewares/auth');
