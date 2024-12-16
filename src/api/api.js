@@ -43,5 +43,11 @@ export const deleteUser = (id) => API.delete(`/users/${id}`);
 // Category-related endpoints
 export const fetchCategories = () => API.get('/categories');
 export const createCategory = (category) => API.post('/categories', category);
-export const updateCategory = (id, updates) => API.put(`/categories/${id}`, updates);
-export const deleteCategory = (id) => API.delete(`/categories/${id}`);
+// Edit a category
+export const updateCategory = (id, data) =>
+    axios.put(`http://localhost:3000/categories/${id}`, data);
+  
+  // Delete a category
+  export const deleteCategory = (id) =>
+    axios.delete(`http://localhost:3000/categories/${id}`);
+  

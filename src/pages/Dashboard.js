@@ -2,32 +2,27 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import "../styles/Dashboard.css";
-import { FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
-import { createCategory, createTask, deleteTask, fetchCategories } from "../api/api";
+import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
+import {
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  createTask,
+  deleteTask,
+  fetchCategories,
+} from "../api/api";
 import axios from "axios";
-
-const months = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
-
-const getDaysInMonth = (month, year) => new Date(year, month + 1, 0).getDate();
 
 const Dashboard = () => {
   const navigate = useNavigate();
 
-  const [projects, setProjects] = useState(() => {
-    const savedProjects = JSON.parse(localStorage.getItem("projects"));
-    return savedProjects || [];
-  });
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [categoryName, setCategoryName] = useState("");
 
+  const [projects, setProjects] = useState([]);
   const [categories, setCategories] = useState([]);
-
-  const [tasks, setTasks] = useState(() => {
-    const savedTasks = JSON.parse(localStorage.getItem("tasks"));
-    return savedTasks || [];
-  });
-
+  const [tasks, setTasks] = useState([]);
   const [newProject, setNewProject] = useState({
     id: null,
     name: "",
@@ -41,52 +36,111 @@ const Dashboard = () => {
   const [date, setDate] = useState({ month: new Date().getMonth(), year: new Date().getFullYear() });
   const [selectedCategory, setSelectedCategory] = useState(null);
 
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  // Load categories and projects from backend on mount
   useEffect(() => {
-    const loadCategories = async () => {
+    const loadData = async () => {
       try {
-        const response = await fetchCategories();
-        setCategories(response.data); // Expecting [{ id, name }]
+        const categoryResponse = await fetchCategories();
+        setCategories(categoryResponse.data);
+
+        const projectResponse = await axios.get("http://localhost:3000/tasks");
+        setProjects(projectResponse.data);
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error("Error loading data:", error);
       }
     };
 
-    loadCategories();
+    loadData();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("projects", JSON.stringify(projects));
-  }, [projects]);
+  // Open Edit Category Modal
+  const handleOpenEditCategoryModal = (category) => {
+    setEditingCategory(category);
+    setCategoryName(category.name);
+    setIsCategoryModalOpen(true);
+  };
 
-  useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks]);
+  // Close Category Modal
+  const handleCloseCategoryModal = () => {
+    setEditingCategory(null);
+    setCategoryName("");
+    setIsCategoryModalOpen(false);
+  };
 
-  useEffect(() => {
-    const updatedProjects = projects.map((project) => {
-      const projectTasks = tasks.filter((task) => task.projectId === project.id);
-      const completedTasks = projectTasks.filter((task) => task.status === "Completed").length;
-      const totalTasks = projectTasks.length;
-      const completion = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-      return { ...project, completion };
-    });
-    setProjects(updatedProjects);
-  }, [tasks]);
-
+    // Add Category
   const handleAddCategory = async () => {
     const categoryName = prompt("Enter category name:");
-    if (categoryName) {
-      try {
-        const response = await createCategory({ name: categoryName, user_id: 1 });
-        setCategories((prev) => [...prev, { id: response.data.id, name: categoryName }]);
-        alert("Category added successfully!");
-      } catch (error) {
-        console.error("Error creating category:", error);
-        alert("Failed to add category.");
-      }
+    if (!categoryName) {
+      alert("Category name cannot be empty.");
+      return;
+    }
+
+    try {
+      const response = await createCategory({ name: categoryName, user_id: 1 }); // Assuming `user_id` is 1
+      setCategories((prev) => [...prev, { id: response.data.id, name: categoryName }]); // Add new category
+      alert("Category added successfully!");
+    } catch (error) {
+      console.error("Error creating category:", error);
+      alert("Failed to add category. Please try again.");
     }
   };
 
+
+  // Save Category Changes
+  const handleSaveCategory = async () => {
+    if (!categoryName.trim()) {
+      alert("Category name cannot be empty.");
+      return;
+    }
+
+    try {
+      await updateCategory(editingCategory.id, { name: categoryName });
+      setCategories((prev) =>
+        prev.map((cat) =>
+          cat.id === editingCategory.id ? { ...cat, name: categoryName } : cat
+        )
+      );
+      alert("Category updated successfully!");
+      handleCloseCategoryModal();
+    } catch (error) {
+      console.error("Error updating category:", error);
+      alert("Failed to update category. Please try again.");
+    }
+  };
+
+  // Delete Category
+  const handleDeleteCategory = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this category?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      await deleteCategory(id);
+      setCategories((prev) => prev.filter((cat) => cat.id !== id));
+      alert("Category deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      alert("Failed to delete category. Please try again.");
+    }
+  };
+
+  // Open Edit/Add Project Modal
   const handleOpenModal = (project = null) => {
     if (project) {
       setNewProject({
@@ -103,48 +157,50 @@ const Dashboard = () => {
     setIsModalOpen(true);
   };
 
+  // Close Project Modal
   const handleCloseModal = () => {
     setNewProject({ id: null, name: "", description: "", category: "", deadline: "" });
     setEditingProject(null);
     setIsModalOpen(false);
   };
 
+  // Save Project Changes
   const handleSaveProject = async () => {
     if (!newProject.name || !newProject.category || !newProject.deadline) {
       alert("Please fill in all required fields before saving the project.");
       return;
     }
-  
+
     const taskData = {
       title: newProject.name,
       description: newProject.description || "",
       category: newProject.category, // Send category name directly
       due_date: newProject.deadline,
     };
-  
+
     try {
       let updatedProjects;
-  
+
       if (editingProject) {
         // EDIT EXISTING PROJECT
         await axios.put(`http://localhost:3000/tasks/${editingProject.id}`, taskData);
-  
+
         // Update project in the frontend state
         updatedProjects = projects.map((proj) =>
           proj.id === editingProject.id ? { ...proj, ...newProject } : proj
         );
       } else {
         // ADD NEW PROJECT
-        const response = await createTask(taskData); // Send POST request
-        const newTaskId = response.data.taskId; // Use taskId from backend
-  
+        const response = await createTask(taskData);
+        const newTaskId = response.data.taskId;
+
         // Add new project to the frontend state
         updatedProjects = [
           ...projects,
           { ...newProject, id: newTaskId, status: "In Progress", completion: 0 },
         ];
       }
-  
+
       setProjects(updatedProjects);
       alert(editingProject ? "Project updated successfully!" : "Project added successfully!");
       handleCloseModal();
@@ -152,17 +208,15 @@ const Dashboard = () => {
       console.error("Error saving project:", error.response?.data || error.message);
       alert("Failed to save project. Please try again.");
     }
-  };  
+  };
 
+  // Delete Project
   const handleDeleteProject = async (projectId) => {
     const confirmed = window.confirm("Are you sure you want to delete this project?");
     if (!confirmed) return;
-  
+
     try {
-      // DELETE request to backend
       await deleteTask(projectId);
-  
-      // Remove project from the frontend state
       setProjects((prev) => prev.filter((project) => project.id !== projectId));
       alert("Project deleted successfully!");
     } catch (error) {
@@ -171,6 +225,7 @@ const Dashboard = () => {
     }
   };
 
+  // Handle Month Navigation
   const handleMonthChange = (direction) => {
     setDate((prev) => {
       let newMonth = prev.month + direction;
@@ -188,16 +243,14 @@ const Dashboard = () => {
     });
   };
 
-  const handleViewProject = (projectId) => {
-    const project = projects.find((proj) => proj.id === projectId);
-    const projectTasks = tasks.filter((task) => task.projectId === projectId);
-    navigate(`/project/${projectId}`, { state: { project, tasks: projectTasks } });
-  };
+  const getDaysInMonth = (month, year) => new Date(year, month + 1, 0).getDate();
 
   const daysInMonth = getDaysInMonth(date.month, date.year);
 
   const filteredProjects = selectedCategory
-    ? projects.filter((project) => project.category === selectedCategory)
+    ? projects.filter((project) =>
+        project.category?.toLowerCase() === selectedCategory.toLowerCase()
+      )
     : projects;
 
   return (
@@ -217,9 +270,24 @@ const Dashboard = () => {
                 <li
                   key={category.id}
                   className={`category-item ${selectedCategory === category.name ? "active" : ""}`}
-                  onClick={() => setSelectedCategory(category.name)}
+                  onClick={() => setSelectedCategory(category.name)} // Update selectedCategory
+                  style={{ cursor: "pointer" }}
                 >
-                  {category.name}
+                  <span>{category.name}</span>
+                  <div className="category-actions">
+                    <button
+                      className="edit-button"
+                      onClick={() => handleOpenEditCategoryModal(category)}
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      className="delete-button"
+                      onClick={() => handleDeleteCategory(category.id)}
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
                 </li>
               ))
             ) : (
@@ -382,6 +450,28 @@ const Dashboard = () => {
             </div>
             <button className="create-project" onClick={handleSaveProject}>
               {editingProject ? "Save Changes" : "Create Project"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {isCategoryModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <button className="close-button" onClick={handleCloseCategoryModal}>
+              ×
+            </button>
+            <h2>Edit Category</h2>
+            <div className="form-group">
+              <label>Category Name</label>
+              <input
+                type="text"
+                value={categoryName}
+                onChange={(e) => setCategoryName(e.target.value)}
+                className="input-field" />
+            </div>
+            <button className="save-button" onClick={handleSaveCategory}>
+              Save Changes
             </button>
           </div>
         </div>

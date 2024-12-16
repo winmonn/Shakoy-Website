@@ -99,7 +99,6 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// Delete a task by ID - No Token Required
 router.delete('/:id', async (req, res) => {
     const taskId = req.params.id;
 
@@ -110,7 +109,7 @@ router.delete('/:id', async (req, res) => {
         }
         res.status(200).json({ message: 'Task deleted successfully' });
     } catch (err) {
-        console.error(err);
+        console.error('Error deleting task:', err);
         res.status(500).json({ message: 'Error deleting task', error: err.message });
     }
 });
