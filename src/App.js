@@ -90,11 +90,11 @@ function App() {
 
           {/* Private Routes */}
           <Route
-            path="/dashboard"
+            path="/dashboard" 
             element={
-              <PrivateRoute>
+              // <PrivateRoute>
                 <Dashboard projects={allProjects} />
-              </PrivateRoute>
+              // </PrivateRoute>
             }
           />
           <Route

@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import '../styles/Navbar.css';
 
 const Navbar = () => {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { user, logout } = useAuth(); // Access user and logout function
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate(); // Initialize useNavigate
 
@@ -47,9 +47,10 @@ const Navbar = () => {
           style={{ cursor: 'pointer' }} // Add cursor pointer to indicate clickable
         />
       </div>
+
       {/* Links or actions on the right */}
       <div className="nav-links">
-        {isAuthenticated ? (
+        {user ? ( // Check if user exists to determine authentication
           <>
             {/* Profile Dropdown */}
             <div className="profile-dropdown">
@@ -64,6 +65,9 @@ const Navbar = () => {
               {/* Dropdown Menu */}
               {isDropdownOpen && (
                 <div className="dropdown-menu">
+                  <Link to="/dashboard" className="dropdown-item" onClick={closeDropdown}>
+                    Dashboard
+                  </Link>
                   <Link to="/settings" className="dropdown-item" onClick={closeDropdown}>
                     Settings
                   </Link>
@@ -83,8 +87,13 @@ const Navbar = () => {
           </>
         ) : (
           <>
-            <Link to="/signup">Sign Up</Link>
-            <Link to="/login">Log In</Link>
+            {/* Show Log In and Sign Up if user is not authenticated */}
+            <Link to="/signup" className="nav-link">
+              Sign Up
+            </Link>
+            <Link to="/login" className="nav-link">
+              Log In
+            </Link>
           </>
         )}
       </div>

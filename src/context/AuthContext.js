@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
-import { login as loginAPI, signup as signupAPI } from '../api/api'; 
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { login as loginAPI, signup as signupAPI } from '../api/api';
 
 const AuthContext = createContext();
 
@@ -10,38 +10,59 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
 
+    // Load user on app start if token exists
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            setUser({ token }); // Assume user is logged in if token exists
+        }
+    }, []);
+
+    // Login function
     const login = async (credentials) => {
         try {
-            const { data } = await loginAPI(credentials); // Call the backend login API
-            localStorage.setItem("token", data.token); // Store the token
-            setUser({ token: data.token }); // Save user info (optional)
-            return true; // Return true on successful login
+            const { data } = await loginAPI(credentials); // Call backend login API
+            localStorage.setItem('token', data.token); // Save token to localStorage
+            setUser({ token: data.token }); // Set user in state
+            console.log('Login successful, token saved.');
+            return true; // Login successful
         } catch (error) {
-            console.error("Login failed:", error.response?.data?.message || error.message);
-            return false; // Return false on failure
+            console.error(
+                'Login failed:',
+                error.response?.data?.message || error.message
+            );
+            return false; // Login failed
         }
     };
-    
-    
-    
 
+    // Signup function
     const signup = async (userDetails) => {
         try {
-            const response = await signupAPI(userDetails); 
-            console.log('Signup API Response:', response); 
-            return true; 
+            const { data } = await signupAPI(userDetails); // Call backend signup API
+            console.log('Signup API Response:', data);
+
+            // Save token if it exists
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+                setUser({ token: data.token }); // Set user in state
+                console.log('Signup successful, token saved.');
+            }
+
+            return true; // Signup successful
         } catch (error) {
-            console.error('Signup failed:', error.response?.data || error.message); 
-            return false; 
+            console.error(
+                'Signup failed:',
+                error.response?.data?.message || error.message
+            );
+            return false; // Signup failed
         }
     };
-    
-  
-  
 
+    // Logout function
     const logout = () => {
-        localStorage.removeItem('token'); 
-        setUser(null); 
+        localStorage.removeItem('token'); // Clear token
+        setUser(null); // Reset user state
+        console.log('User logged out successfully.');
     };
 
     return (

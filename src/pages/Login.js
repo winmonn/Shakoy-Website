@@ -4,15 +4,18 @@ import { useAuth } from '../context/AuthContext';
 import '../styles/Login.css';
 
 const Login = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { login } = useAuth(); 
+    const navigate = useNavigate(); // Hook for redirection
+    const location = useLocation(); // Capture where the user came from
+
+    const { login } = useAuth(); // AuthContext login function
     const [credentials, setCredentials] = useState({
-        email: '', 
+        email: '',
         password: '',
     });
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
+    // Redirect to the previous route or default to /dashboard
     const from = location.state?.from?.pathname || '/dashboard';
 
     const handleChange = (e) => {
@@ -22,25 +25,28 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+        setLoading(true);
+    
         console.log('Form Data Sent to Login:', credentials);
     
         try {
-            const isSuccess = await login(credentials);
-            console.log('Login Success Status:', isSuccess); // Log result of login function
+            const isSuccess = await login(credentials); // Call login function
+            console.log('Login Success Status:', isSuccess);
     
             if (isSuccess) {
-                console.log('Navigating to:', from); // Log where you are trying to navigate
-                navigate(from, { replace: true });
+                console.log('Redirecting to dashboard...');
+                navigate('/dashboard', { replace: true }); // Redirect to dashboard
             } else {
-                console.log('Login failed - Invalid credentials');
                 setError('Invalid email or password.');
             }
         } catch (err) {
             console.error('Login error:', err);
             setError('Something went wrong. Please try again later.');
+        } finally {
+            setLoading(false);
         }
     };
-    
 
     return (
         <div className="login-container">
@@ -54,7 +60,7 @@ const Login = () => {
                 <h2>Login</h2>
                 <form onSubmit={handleSubmit}>
                     <input
-                        type="email" 
+                        type="email"
                         placeholder="Email"
                         name="email"
                         value={credentials.email}
@@ -75,8 +81,8 @@ const Login = () => {
                     <div className="forgot-password">
                         <a href="/forgot-password">Forgot Password?</a>
                     </div>
-                    <button type="submit" className="login-button">
-                        Login
+                    <button type="submit" className="login-button" disabled={loading}>
+                        {loading ? 'Logging in...' : 'Login'}
                     </button>
                 </form>
 
