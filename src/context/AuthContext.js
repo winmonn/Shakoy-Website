@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { login as loginAPI, signup as signupAPI } from '../api/api';
+import axios from 'axios';
 
 const AuthContext = createContext();
 
@@ -21,45 +21,39 @@ export const AuthProvider = ({ children }) => {
     // Login function
     const login = async (credentials) => {
         try {
-            const { data } = await loginAPI(credentials); // Call backend login API
-            localStorage.setItem('token', data.token); // Save token to localStorage
-            setUser({ token: data.token }); // Set user in state
-            console.log('Login successful, token saved.');
-            return true; // Login successful
+            const response = await axios.post('http://localhost:3000/users/login', credentials);
+            const { token, user } = response.data;
+    
+            // Save token and update user
+            localStorage.setItem('token', token);
+            setUser(user); // Ensure 'user' has profilePhoto or username
+    
+            return true;
         } catch (error) {
-            console.error(
-                'Login failed:',
-                error.response?.data?.message || error.message
-            );
-            return false; // Login failed
+            console.error('Login API Error:', error.response?.data || error.message);
+            return false;
+        }
+    };
+    
+    // Signup function
+    const signup = async (formData) => {
+        try {
+            const response = await axios.post('http://localhost:3000/users/signup', formData);
+
+            if (response.data.token) {
+                localStorage.setItem('token', response.data.token);
+                setUser(response.data.user);
+                return true;
+            } else {
+                console.error('Signup API did not return a token.');
+                return false;
+            }
+        } catch (error) {
+            console.error('Signup API Error:', error.response?.data || error.message);
+            return false;
         }
     };
 
-    // Signup function
-    const signup = async (userDetails) => {
-        try {
-            const { data } = await signupAPI(userDetails); // Call backend signup API
-            console.log('Signup API Response:', data);
-    
-            // Check if the API returned a success indicator (like a token)
-            if (data && data.token) {
-                localStorage.setItem('token', data.token);
-                setUser({ token: data.token }); // Set user in state
-                console.log('Signup successful, token saved.');
-                return true; // Signup successful
-            } else {
-                console.error('Signup API did not return a token.');
-                return false; // Signup failed
-            }
-        } catch (error) {
-            console.error(
-                'Signup failed:',
-                error.response?.data?.message || error.message
-            );
-            return false; // Signup failed
-        }
-    };
-    
     // Logout function
     const logout = () => {
         localStorage.removeItem('token'); // Clear token
@@ -67,6 +61,7 @@ export const AuthProvider = ({ children }) => {
         console.log('User logged out successfully.');
     };
 
+    // Provide all functions and user state
     return (
         <AuthContext.Provider value={{ user, login, signup, logout }}>
             {children}

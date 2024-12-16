@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import "../styles/Dashboard.css";
 import { FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
-import { createCategory, createTask, fetchCategories } from "../api/api";
+import { createCategory, createTask, deleteTask, fetchCategories } from "../api/api";
+import axios from "axios";
 
 const months = [
   "January", "February", "March", "April", "May", "June",
@@ -113,33 +114,60 @@ const Dashboard = () => {
       alert("Please fill in all required fields before saving the project.");
       return;
     }
-
+  
     const taskData = {
       title: newProject.name,
       description: newProject.description || "",
       category: newProject.category, // Send category name directly
       due_date: newProject.deadline,
     };
-
+  
     try {
-      const response = await createTask(taskData);
-      alert("Project saved successfully!");
-      setProjects((prev) => [
-        ...prev,
-        { ...newProject, id: Date.now(), status: "In Progress", completion: 0 },
-      ]);
+      let updatedProjects;
+  
+      if (editingProject) {
+        // EDIT EXISTING PROJECT
+        await axios.put(`http://localhost:3000/tasks/${editingProject.id}`, taskData);
+  
+        // Update project in the frontend state
+        updatedProjects = projects.map((proj) =>
+          proj.id === editingProject.id ? { ...proj, ...newProject } : proj
+        );
+      } else {
+        // ADD NEW PROJECT
+        const response = await createTask(taskData); // Send POST request
+        const newTaskId = response.data.taskId; // Use taskId from backend
+  
+        // Add new project to the frontend state
+        updatedProjects = [
+          ...projects,
+          { ...newProject, id: newTaskId, status: "In Progress", completion: 0 },
+        ];
+      }
+  
+      setProjects(updatedProjects);
+      alert(editingProject ? "Project updated successfully!" : "Project added successfully!");
       handleCloseModal();
     } catch (error) {
       console.error("Error saving project:", error.response?.data || error.message);
       alert("Failed to save project. Please try again.");
     }
-  };
+  };  
 
-  const handleDeleteProject = (projectId) => {
+  const handleDeleteProject = async (projectId) => {
     const confirmed = window.confirm("Are you sure you want to delete this project?");
-    if (confirmed) {
+    if (!confirmed) return;
+  
+    try {
+      // DELETE request to backend
+      await deleteTask(projectId);
+  
+      // Remove project from the frontend state
       setProjects((prev) => prev.filter((project) => project.id !== projectId));
-      setTasks((prev) => prev.filter((task) => task.projectId !== projectId));
+      alert("Project deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting project:", error.response?.data || error.message);
+      alert("Failed to delete project. Please try again.");
     }
   };
 
@@ -237,9 +265,6 @@ const Dashboard = () => {
                         <div className="project-actions">
                           <button onClick={() => handleOpenModal(project)} className="edit-button">
                             <FaEdit />
-                          </button>
-                          <button onClick={() => handleViewProject(project.id)} className="view-button">
-                            <FaEye />
                           </button>
                           <button onClick={() => handleDeleteProject(project.id)} className="delete-button">
                             <FaTrash />

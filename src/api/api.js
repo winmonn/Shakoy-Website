@@ -17,7 +17,11 @@ export const fetchTasks = (limit = 10, offset = 0) => API.get(`/tasks?limit=${li
 export const fetchTaskById = (id) => API.get(`/tasks/${id}`);
 export const createTask = (task) => API.post('/tasks', task);
 export const updateTask = (id, updates) => API.put(`/tasks/${id}`, updates);
-export const deleteTask = (id) => API.delete(`/tasks/${id}`);
+
+
+export const deleteTask = (id) => {
+    return axios.delete(`http://localhost:3000/tasks/${id}`);
+  };
 
 // User-related endpoints
 export const signup = async (userDetails) => {

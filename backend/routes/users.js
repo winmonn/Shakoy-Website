@@ -45,46 +45,31 @@ router.post('/login', async (req, res) => {
 
 // User signup
 router.post('/signup', async (req, res) => {
-    const { email, username, password } = req.body;
+    const { username, email, password } = req.body;
 
-    console.log('Signup Request Body:', req.body);
-
-    if (!email || !username || !password) {
-        return res.status(400).json({ message: 'Email, username, and password are required' });
-    }
-
-    if (password.length < 8 || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
-        return res.status(400).json({
-            message: 'Password must be at least 8 characters long and include one uppercase letter and one number',
-        });
+    if (!username || !email || !password) {
+        return res.status(400).json({ message: 'All fields are required.' });
     }
 
     try {
+        // Add user to the database
         const hashedPassword = await bcrypt.hash(password, 10);
+        const [result] = await pool.execute(
+            'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
+            [username, email, hashedPassword]
+        );
 
-        const result = await createUser({ email, username, password: hashedPassword });
-
-        if (!result.success) {
-            return res.status(400).json({ message: result.message });
-        }
-
-        const user = result.user;
-
+        // Generate a JWT token for the newly created user
         const token = jwt.sign(
-            { id: user.id, email: user.email },
-            process.env.JWT_SECRET,
+            { id: result.insertId, username, email },
+            process.env.JWT_SECRET, // Use a secure secret
             { expiresIn: '1h' }
         );
 
-        console.log('Signup successful, returning token');
-        res.status(201).json({
-            message: 'User registered successfully',
-            token,
-            user: result.user,
-        });
-    } catch (err) {
-        console.error('Error in /signup route:', err.message);
-        res.status(500).json({ message: 'Error registering user', error: err.message });
+        return res.status(201).json({ message: 'Signup successful!', token });
+    } catch (error) {
+        console.error('Signup Error:', error);
+        return res.status(500).json({ message: 'Signup failed. Please try again.' });
     }
 });
 
