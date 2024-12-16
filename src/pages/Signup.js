@@ -23,12 +23,13 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log('Form Data Sent to Signup:', formData); 
+    console.log('Form Data Sent to Signup:', formData); // Log form data for debugging
+
     try {
-        const isSuccess = await signup(formData); 
+        const isSuccess = await signup(formData); // Ensure signup uses 'username' field
         if (isSuccess) {
             alert('Account created successfully! You can now log in.');
-            navigate('/login'); 
+            navigate('/login'); // Redirect to login page
         } else {
             setError('Signup failed. Please try again.');
         }
@@ -37,8 +38,6 @@ const Signup = () => {
         setError('Something went wrong. Please try again later.');
     }
 };
-
-
 
 
   return (
@@ -65,7 +64,7 @@ const Signup = () => {
         type="text"
         placeholder="Username"
         name="username"
-        value={formData.username} // Update to 'username'
+        value={formData.username} 
         onChange={handleChange}
         className="input-field"
         required

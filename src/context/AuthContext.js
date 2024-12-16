@@ -12,18 +12,16 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (credentials) => {
         try {
-            console.log('Sending Login Request:', credentials);
-            const { data } = await loginAPI(credentials); 
-            console.log('Login API Response:', data);
-    
-            localStorage.setItem('token', data.token); 
-            setUser(data.user); 
-            return true;
+            const { data } = await loginAPI(credentials); // Call the backend login API
+            localStorage.setItem("token", data.token); // Store the token
+            setUser({ token: data.token }); // Save user info (optional)
+            return true; // Return true on successful login
         } catch (error) {
-            console.error('Login failed:', error.response?.data?.message || error.message);
-            return false;
+            console.error("Login failed:", error.response?.data?.message || error.message);
+            return false; // Return false on failure
         }
     };
+    
     
     
 

@@ -45,22 +45,24 @@ router.post('/login', async (req, res) => {
 
 // User signup
 router.post('/signup', async (req, res) => {
-    const { name, email, password } = req.body;
+    const { email, username, password } = req.body;
 
     console.log('Signup Request Body:', req.body);
 
-    if (!name || !email || !password) {
-        return res.status(400).json({ message: 'Name, email, and password are required' });
+    if (!email || !username || !password) {
+        return res.status(400).json({ message: 'Email, username, and password are required' });
     }
 
     if (password.length < 8 || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
-        return res.status(400).json({ message: 'Password must be at least 8 characters long and include one uppercase letter and one number' });
+        return res.status(400).json({
+            message: 'Password must be at least 8 characters long and include one uppercase letter and one number',
+        });
     }
 
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const result = await createUser({ name, email, password: hashedPassword });
+        const result = await createUser({ email, username, password: hashedPassword });
 
         if (!result.success) {
             return res.status(400).json({ message: result.message });
@@ -74,17 +76,18 @@ router.post('/signup', async (req, res) => {
             { expiresIn: '1h' }
         );
 
-        console.log('Signup successful, returning token'); // Log success
+        console.log('Signup successful, returning token');
         res.status(201).json({
             message: 'User registered successfully',
             token,
             user: result.user,
         });
     } catch (err) {
-        console.error('Error in /signup route:', err.message); // Log any route-level errors
+        console.error('Error in /signup route:', err.message);
         res.status(500).json({ message: 'Error registering user', error: err.message });
     }
 });
+
 
 // Fetch all users (admin only)
 router.get('/', verifyToken, async (req, res) => {

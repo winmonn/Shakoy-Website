@@ -29,11 +29,13 @@ const verifyUser = async (email, password) => {
 
 const createUser = async ({ email, username, password }) => {
     try {
+        // Check if email is already registered
         const [existingUser] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
         if (existingUser.length > 0) {
             return { success: false, message: 'Email already in use' };
         }
 
+        // Insert the new user into the database
         const [result] = await pool.execute(
             'INSERT INTO users (email, username, password) VALUES (?, ?, ?)',
             [email, username, password]
@@ -50,3 +52,4 @@ const createUser = async ({ email, username, password }) => {
 };
 
 module.exports = { verifyUser, createUser };
+
