@@ -1,45 +1,53 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const pool = require('../models/db'); 
 const bcrypt = require('bcrypt');
 const { verifyUser, createUser, getUserById, getAllUsers, updateUser, deleteUser } = require('../models/user');
-const { authenticateJWT } = require('../middleware/auth'); 
+const { verifyToken, isAdmin } = require('../middlewares/auth');
 require('dotenv').config();
 
 const router = express.Router();
 
 // User login
 router.post('/login', async (req, res) => {
+    console.log('Login Request Body:', req.body); 
+
     const { email, password } = req.body;
 
-    if (!email || !password) {
-        return res.status(400).json({ message: 'Email and password are required' });
-    }
-
     try {
-        const result = await verifyUser(email, password);
+        const [user] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
 
-        if (!result.success) {
-            return res.status(401).json({ message: result.message });
+        if (user.length === 0) {
+            console.log('No user found for email:', email);
+            return res.status(400).json({ message: 'Invalid email or password' });
         }
 
-        const user = result.user;
+        const validPassword = await bcrypt.compare(password, user[0].password);
 
-        const token = jwt.sign(
-            { id: user.id, email: user.email },
-            process.env.JWT_SECRET,
-            { expiresIn: '1h' }
-        );
+        if (!validPassword) {
+            console.log('Password mismatch for email:', email);
+            return res.status(400).json({ message: 'Invalid email or password' });
+        }
 
-        res.json({ message: 'Login successful', token });
+        const token = jwt.sign({ userId: user[0].id }, process.env.JWT_SECRET, {
+            expiresIn: '1h',
+        });
+
+        console.log('Login successful for email:', email);
+        res.status(200).json({ message: 'Login successful', token });
+
     } catch (err) {
-        console.error(err);
+        console.error('Error during login:', err.message);
         res.status(500).json({ message: 'Error during login', error: err.message });
     }
 });
 
+
 // User signup
 router.post('/signup', async (req, res) => {
     const { name, email, password } = req.body;
+
+    console.log('Signup Request Body:', req.body);
 
     if (!name || !email || !password) {
         return res.status(400).json({ message: 'Name, email, and password are required' });
@@ -66,15 +74,20 @@ router.post('/signup', async (req, res) => {
             { expiresIn: '1h' }
         );
 
-        res.status(201).json({ message: 'User registered successfully', token, user });
+        console.log('Signup successful, returning token'); // Log success
+        res.status(201).json({
+            message: 'User registered successfully',
+            token,
+            user: result.user,
+        });
     } catch (err) {
-        console.error(err);
+        console.error('Error in /signup route:', err.message); // Log any route-level errors
         res.status(500).json({ message: 'Error registering user', error: err.message });
     }
 });
 
 // Fetch all users (admin only)
-router.get('/', authenticateJWT, async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
     try {
         const users = await getAllUsers();
 
@@ -86,7 +99,7 @@ router.get('/', authenticateJWT, async (req, res) => {
 });
 
 // Fetch a user by ID
-router.get('/:id', authenticateJWT, async (req, res) => {
+router.get('/:id', verifyToken, async (req, res) => {
     const userId = req.params.id;
 
     try {
@@ -104,7 +117,7 @@ router.get('/:id', authenticateJWT, async (req, res) => {
 });
 
 // Update user details
-router.put('/:id', authenticateJWT, async (req, res) => {
+router.put('/:id', verifyToken, async (req, res) => {
     const userId = req.params.id;
     const updates = req.body;
 
@@ -131,7 +144,7 @@ router.put('/:id', authenticateJWT, async (req, res) => {
 });
 
 // Delete a user by ID
-router.delete('/:id', authenticateJWT, async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
     const userId = req.params.id;
 
     try {
